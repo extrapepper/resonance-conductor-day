@@ -129,6 +129,7 @@ const els = {
   endingTitle: document.querySelector("#ending-title"),
   endingBody: document.querySelector("#ending-body"),
   endingRestart: document.querySelector("#ending-restart"),
+  phaseSteps: document.querySelectorAll("[data-phase-step]"),
 };
 
 function clamp(value, min = 0, max = 100) {
@@ -158,6 +159,12 @@ function render() {
   els.moraleBar.style.width = `${state.stats.morale}%`;
   els.conditionBar.style.width = `${state.stats.condition}%`;
   els.fatigueBar.style.width = `${state.stats.fatigue}%`;
+
+  els.phaseSteps.forEach((step) => {
+    const index = Number(step.dataset.phaseStep);
+    step.classList.toggle("is-active", index === state.phaseIndex);
+    step.classList.toggle("is-complete", index < state.phaseIndex);
+  });
 
   els.crewList.innerHTML = crew
     .map((member) => {
@@ -196,14 +203,22 @@ function renderIntro() {
 
 function renderChoices() {
   els.choices.innerHTML = actions
-    .map(
-      (action) => `
+    .map((action, index) => {
+      const chips = Object.entries(action.effects)
+        .map(([key, value]) => `<i>${effectLabel(key)} ${value > 0 ? "+" : ""}${value}</i>`)
+        .join("");
+
+      return `
         <button class="choice-button" type="button" data-action="${action.id}">
-          <strong>${action.title}</strong>
+          <span class="choice-title">
+            <strong>${action.title}</strong>
+            <em class="choice-index">0${index + 1}</em>
+          </span>
           <span>${action.hint}</span>
+          <span class="effect-chips">${chips}</span>
         </button>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 
@@ -218,6 +233,12 @@ function applyEffects(effects) {
 }
 
 function describeEffects(effects) {
+  return Object.entries(effects)
+    .map(([key, value]) => `${effectLabel(key)} ${value > 0 ? "+" : ""}${value}`)
+    .join(" / ");
+}
+
+function effectLabel(key) {
   const names = {
     morale: "士气",
     condition: "车况",
@@ -226,10 +247,7 @@ function describeEffects(effects) {
     mika: "米卡信任",
     noel: "诺艾尔信任",
   };
-
-  return Object.entries(effects)
-    .map(([key, value]) => `${names[key]} ${value > 0 ? "+" : ""}${value}`)
-    .join(" / ");
+  return names[key] || key;
 }
 
 function collectMilestones() {
@@ -336,7 +354,9 @@ function showEnding() {
 
 function restart() {
   state = newState();
-  els.endingDialog.close();
+  if (els.endingDialog.open) {
+    els.endingDialog.close();
+  }
   render();
   renderIntro();
 }
