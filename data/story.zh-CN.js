@@ -1,0 +1,1120 @@
+window.GAME_CONTENT = {
+  meta: {
+    title: "雷索纳斯：列车长的一日",
+    subtitle: "下一站，风暴边界",
+    disclaimer: "非商业同人原型 / 美术为占位资产",
+  },
+  phases: ["上午", "下午", "夜晚"],
+  stats: {
+    morale: { label: "士气", min: 0, max: 100 },
+    condition: { label: "车况", min: 0, max: 100 },
+    fatigue: { label: "疲劳", min: 0, max: 100, dangerHigh: true },
+    fuel: { label: "燃料", min: 0, max: 100 },
+    supplies: { label: "补给", min: 0, max: 100 },
+    onTime: { label: "准点", min: -6, max: 8 },
+    clues: { label: "线索", min: 0, max: 12 },
+    risk: { label: "风险", min: 0, max: 100, dangerHigh: true },
+    credit: { label: "商会信用", min: 0, max: 100 },
+    shizuru: { label: "静流支援", min: 0, max: 3 },
+  },
+  initialStats: {
+    morale: 58,
+    condition: 72,
+    fatigue: 18,
+    fuel: 72,
+    supplies: 58,
+    onTime: 2,
+    clues: 0,
+    risk: 12,
+    credit: 55,
+    shizuru: 0,
+  },
+  crew: [
+    {
+      id: "livia",
+      stat: "livia",
+      name: "莉薇娅",
+      role: "列车助理 / 账目、记录与过度关心",
+      initial: "莉",
+      valueLabel: "信任",
+      initialValue: 24,
+      lineLow: "莉薇娅把夹板抱在怀里，语气仍然温和，但没有继续追问你的真实想法。",
+      lineMid: "莉薇娅翻开记录页，轻声说：“列车长，我会把风险也写进去。”",
+      lineHigh: "莉薇娅看着你，声音很轻却没有退让：“这次，请不要一个人决定。”",
+    },
+    {
+      id: "haruka",
+      stat: "haruka",
+      name: "遥",
+      role: "维修师 / 更愿意和列车说话",
+      initial: "遥",
+      valueLabel: "信任",
+      initialValue: 22,
+      lineLow: "遥从维修车厢门后看了你一眼，只留下一句：“车底还在响。”",
+      lineMid: "遥把一张简短的维修单递给你：“能跑。别硬跑。”",
+      lineHigh: "遥没有多说，只把备用工具推到你能拿到的位置：“有事叫我。”",
+    },
+    {
+      id: "box",
+      stat: "box",
+      name: "波克士",
+      role: "行车助理 / 毒舌、自封称号、偏袒莉薇娅",
+      initial: "波",
+      valueLabel: "稳定",
+      initialValue: 76,
+      lineLow: "波克士的播报夹进了几段无关称号，最后还是准确显示了下一段轨道。",
+      lineMid: "波克士晃了晃机体：“评判者波克士认为，列车长本日表现勉强及格。”",
+      lineHigh: "波克士投出行车图：“全知者波克士已完成准备，半吊子列车长只需照做。”",
+    },
+    {
+      id: "fran",
+      stat: "fran",
+      name: "弗兰",
+      role: "护卫乘员 / 负责把艾略特拉回工作",
+      initial: "弗",
+      valueLabel: "默契",
+      initialValue: 24,
+      lineLow: "弗兰检查盾牌固定带，提醒你别把护卫排班当成无限资源。",
+      lineMid: "弗兰看了一眼艾略特，又看向你：“我会守住前段，她守后段。”",
+      lineHigh: "弗兰把巡逻表按到桌上：“这次我来排。艾略特不许抗议。”",
+    },
+    {
+      id: "eliot",
+      stat: "eliot",
+      name: "艾略特",
+      role: "护卫乘员 / 嘴碎、偷懒、关键时刻会动",
+      initial: "艾",
+      valueLabel: "默契",
+      initialValue: 24,
+      lineLow: "艾略特举手：“我能申请一个比较不累的信任增长方式吗？”",
+      lineMid: "艾略特叹了口气：“好吧好吧，我去后段。弗兰你别用那种眼神看我。”",
+      lineHigh: "艾略特一边喊累，一边把备用弹匣塞进腰包：“我知道啦，关键时候不会掉链子的。”",
+    },
+  ],
+  timeline: [
+    {
+      day: 1,
+      title: "7号自由港，出发前的账",
+      slots: [
+        {
+          phase: "上午",
+          scene: "freeport",
+          location: "7号自由港站台",
+          time: "委托交接",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "7号自由港外缘的风向变化很快，站台广播里的杂音像细小砂砾一样刮过耳膜。" },
+            { speaker: "莉薇娅", text: "合同没有问题，但太干净了。干净到像是有人替我们擦掉了该看的部分。" },
+            { speaker: "波克士", text: "哔哔！签字前建议列车长摄入液体。红茶、清水，或承认自己紧张的勇气。" },
+          ],
+          choices: [
+            {
+              id: "d1m-contract",
+              title: "按合同直接发车",
+              hint: "守住准点和商会信用，但放过账目疑点。",
+              effects: { stats: { fuel: -5, credit: 8 }, crew: { livia: -2 } },
+              result: [
+                { speaker: "莉薇娅", text: "我会按合同记录。只是，列车长，没有异常和没有风险不是一回事。" },
+                { speaker: "波克士", text: "记录：半吊子列车长选择相信纸面文字。波克士将保留吐槽权。" },
+              ],
+            },
+            {
+              id: "d1m-livia-audit",
+              title: "让莉薇娅复核委托账目",
+              hint: "花时间换线索，建立莉薇娅账目线。",
+              effects: { stats: { clues: 1, fatigue: 4, credit: 3, onTime: -1 }, crew: { livia: 6 } },
+              result: [
+                { speaker: "莉薇娅", text: "保险条款里有折痕。这里写着，如果部件在交付前失效，责任会落在承运列车上。" },
+                { speaker: "旁白", text: "她没有说“危险”，只是把那一行字用铅笔轻轻圈了起来。" },
+              ],
+            },
+            {
+              id: "d1m-caroline",
+              title: "听取卡洛琳的绕行建议",
+              hint: "消耗燃料，降低污染区风险。",
+              effects: { stats: { fuel: -10, risk: -8, onTime: -1, clues: 1 } },
+              result: [
+                { speaker: "卡洛琳", text: "我不是说地图错了。我是说，今天这条路不太像地图上那条。" },
+                { speaker: "波克士", text: "哔哔，直觉型导航已录入。准确率未知，态度倒是很坚定。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "cargo",
+          location: "货仓",
+          time: "发车检查",
+          focus: "haruka",
+          lines: [
+            { speaker: "旁白", text: "货仓封装箱在轨道震动中发出低频回响，像某种尚未醒来的设备。" },
+            { speaker: "遥", text: "车底传感器被干扰了。" },
+            { speaker: "艾略特", text: "发车前就来这种活？我能不能申请从明天开始认真？" },
+            { speaker: "弗兰", text: "不能。站岗。" },
+          ],
+          choices: [
+            {
+              id: "d1a-haruka-scan",
+              title: "让遥拆检传感器",
+              hint: "车况与线索提升，准点受损。",
+              effects: { stats: { condition: 8, clues: 1, onTime: -1 }, crew: { haruka: 6 } },
+              result: [
+                { speaker: "遥", text: "不是松动。货物在回声。" },
+                { speaker: "旁白", text: "她说完就转身回到车底，只留下还在晃动的维修灯。" },
+              ],
+            },
+            {
+              id: "d1a-guards",
+              title: "安排弗兰和艾略特护卫货仓",
+              hint: "降低风险，提高士气，消耗补给。",
+              effects: { stats: { risk: -8, morale: 4, supplies: -3 }, crew: { fran: 4, eliot: 3 } },
+              result: [
+                { speaker: "弗兰", text: "我在前段，艾略特在后段。" },
+                { speaker: "艾略特", text: "后段？那里离餐车最远吧？我能申请一个更有人情味的站位吗？" },
+                { speaker: "弗兰", text: "不能。" },
+              ],
+            },
+            {
+              id: "d1a-box-fast",
+              title: "让波克士完成快速发车流程",
+              hint: "抢回准点，损耗车况和波克士稳定度。",
+              effects: { stats: { onTime: 1, condition: -4 }, crew: { box: -8 } },
+              result: [
+                { speaker: "波克士", text: "引航者波克士启动快速流程。列车长请不要在本机表现优异时露出理所当然的表情。" },
+                { speaker: "遥", text: "快是快。后面会响。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "lounge",
+          location: "车长室",
+          time: "第一段异常播报",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "列车驶离 7号自由港外缘，车窗外的灯逐渐被黑色荒原吞没。" },
+            { speaker: "波克士", text: "接收到阿妮塔格式低频回传。内容损坏，来源与货物批次高度相关。" },
+            { speaker: "莉薇娅", text: "列车长，账本夹页里还有一行字。我想，最好不要等到抵达之后再看。" },
+          ],
+          choices: [
+            {
+              id: "d1n-livia-page",
+              title: "和莉薇娅核对附页",
+              hint: "获得关键线索，但增加疲劳。",
+              effects: { stats: { clues: 2, fatigue: 6 }, crew: { livia: 8 } },
+              result: [
+                { speaker: "莉薇娅", text: "如果货物因污染区异常失效，责任会转嫁给承运列车。列车长，这不是普通订单。" },
+                { speaker: "旁白", text: "她把红茶推到你手边，指尖却停在那行责任条款上。" },
+              ],
+            },
+            {
+              id: "d1n-haruka",
+              title: "去货仓询问遥",
+              hint: "确认货物响应，提升遥信任。",
+              effects: { stats: { condition: 4, fatigue: 8 }, crew: { haruka: 6, livia: 1 } },
+              result: [
+                { speaker: "遥", text: "不是备用部件。它在用低功率回答列车。" },
+                { speaker: "旁白", text: "她没有解释更多，只把示波记录钉在货仓门边。" },
+              ],
+            },
+            {
+              id: "d1n-box-decode",
+              title: "让波克士自动解码，列车长休息",
+              hint: "减少疲劳，但消耗波克士稳定度。",
+              effects: { stats: { fatigue: -10, clues: 1 }, crew: { box: -10 } },
+              result: [
+                { speaker: "波克士", text: "收到。全知者波克士将在半吊子列车长睡眠期间承担额外脑力劳动。" },
+                { speaker: "莉薇娅", text: "那就拜托你了，波克士。列车长，今晚请真的休息。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 2,
+      title: "阿妮塔能源研究所，样本与功率",
+      slots: [
+        {
+          phase: "上午",
+          scene: "research",
+          location: "阿妮塔能源研究所接驳区",
+          time: "研究所请求",
+          focus: "livia",
+          lines: [
+            { speaker: "妮蔻拉", text: "我不建议你把这称为请求。它更接近一次避免损失扩大的机会。" },
+            { speaker: "莉薇娅", text: "列车长，我可以把停靠写成风险规避，但账面上的时间不会因此变短。" },
+            { speaker: "遥", text: "数据没错。继续发热，车底先坏。" },
+          ],
+          choices: [
+            {
+              id: "d2m-refuse",
+              title: "拒绝停靠，维持原路线",
+              hint: "保准点和信用，但风险上升。",
+              effects: { stats: { onTime: 1, credit: 5, clues: -1, risk: 6 }, crew: { livia: -2 } },
+              result: [
+                { speaker: "莉薇娅", text: "我会记录为按合同执行。只是，如果之后证明她说得对，我们会很被动。" },
+                { speaker: "波克士", text: "记录：列车长选择把麻烦留给未来的列车长。未来的列车长表示抗议。" },
+              ],
+            },
+            {
+              id: "d2m-data",
+              title: "短暂停靠，只接收数据",
+              hint: "折中方案，获得线索。",
+              effects: { stats: { onTime: -1, clues: 2, fuel: -5, credit: -3 } },
+              result: [
+                { speaker: "妮蔻拉", text: "只接收数据？保守，但至少不是愚蠢。" },
+                { speaker: "遥", text: "够用。不够稳。" },
+              ],
+            },
+            {
+              id: "d2m-sample",
+              title: "完整停靠，协助回收样本",
+              hint: "大幅推进真相线，消耗时间与燃料。",
+              effects: { stats: { onTime: -2, fuel: -10, clues: 3, credit: -8 }, crew: { haruka: 5 } },
+              result: [
+                { speaker: "妮蔻拉", text: "很好。你们至少知道在损失扩大前停下来。" },
+                { speaker: "莉薇娅", text: "我会准备说明。列车长，商会那边可能不会喜欢这份说明。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "cab",
+          location: "驾驶室",
+          time: "功率分配",
+          focus: "haruka",
+          lines: [
+            { speaker: "旁白", text: "研究所数据证明封装部件与列车电力系统存在异常耦合。" },
+            { speaker: "遥", text: "一个时段。能用。" },
+            { speaker: "波克士", text: "哔哔！当前方案会降低餐车照明、座椅加热，以及半吊子列车长装作没事的成功率。" },
+          ],
+          choices: [
+            {
+              id: "d2a-bypass",
+              title: "让遥加装旁路稳定器",
+              hint: "改善车况，提升遥信任，消耗补给与体力。",
+              effects: { stats: { condition: 10, supplies: -5, fatigue: 8 }, crew: { haruka: 8 } },
+              result: [
+                { speaker: "遥", text: "别碰线。也别问能不能漂亮。" },
+                { speaker: "旁白", text: "她的声音很低，但维修车厢里的每一次敲击都稳了下来。" },
+              ],
+            },
+            {
+              id: "d2a-power-save",
+              title: "让波克士限制非必要供电",
+              hint: "节约燃料，降低士气和稳定度。",
+              effects: { stats: { fuel: 5, morale: -8 }, crew: { box: -4 } },
+              result: [
+                { speaker: "波克士", text: "省电模式启动。餐车浪漫氛围下降 72%，列车长魅力不受影响，因为本来就没有纳入模型。" },
+                { speaker: "艾略特", text: "喂！我的座椅加热也算非必要吗？" },
+              ],
+            },
+            {
+              id: "d2a-comfort",
+              title: "保持乘客舒适，承受功率波动",
+              hint: "提高士气，但损伤车况。",
+              effects: { stats: { morale: 6, condition: -10, risk: 5 }, crew: { livia: 2 } },
+              result: [
+                { speaker: "莉薇娅", text: "大家可以忍受一点不方便，但他们也需要知道为什么。既然您选择先稳住他们，我会去说明。" },
+                { speaker: "遥", text: "车会响。记住。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "dining",
+          location: "餐车",
+          time: "红茶与广播",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "餐车的灯调暗了一档。莉薇娅给乘员准备红茶，波克士负责饮品速递。" },
+            { speaker: "艾略特", text: "如果红茶能让明天少站两班岗，我愿意喝两杯。" },
+            { speaker: "弗兰", text: "你想得倒美。" },
+          ],
+          choices: [
+            {
+              id: "d2n-livia-care",
+              title: "陪莉薇娅安抚乘员",
+              hint: "提高士气与莉薇娅信任。",
+              effects: { stats: { morale: 12, fatigue: 4 }, crew: { livia: 8, fran: 2, eliot: 2 } },
+              result: [
+                { speaker: "莉薇娅", text: "谢谢您留下来。大家不是不能忍受不安，只是需要知道自己没有被丢在不安里。" },
+                { speaker: "波克士", text: "记录：莉薇娅小姐发言质量极高。列车长请学习。" },
+              ],
+            },
+            {
+              id: "d2n-haruka-noise",
+              title: "继续和遥排查车底噪音",
+              hint: "提高车况和线索，牺牲士气与疲劳。",
+              effects: { stats: { condition: 6, clues: 1, morale: -4, fatigue: 10 }, crew: { haruka: 5 } },
+              result: [
+                { speaker: "遥", text: "不是噪音。是回应。" },
+                { speaker: "旁白", text: "她把耳朵贴近车壁，像在听一段别人听不懂的谈话。" },
+              ],
+            },
+            {
+              id: "d2n-box-broadcast",
+              title: "让波克士接管广播",
+              hint: "小幅安抚乘员，消耗稳定度。",
+              effects: { stats: { morale: 4, fatigue: -4 }, crew: { box: -8 } },
+              result: [
+                { speaker: "波克士", text: "广播开始。各位乘员请注意，列车长仍在努力表现得可靠，请给予最低限度的鼓励。" },
+                { speaker: "莉薇娅", text: "波克士，后半句可以不用播出来。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 3,
+      title: "铁盟哨站，规程与封锁",
+      slots: [
+        {
+          phase: "上午",
+          scene: "outpost",
+          location: "铁盟哨站检查线",
+          time: "哨站拦检",
+          focus: "livia",
+          lines: [
+            { speaker: "静流", text: "我可以给你解释的时间，但不能替你省略规程。" },
+            { speaker: "莉薇娅", text: "记录我都带来了。列车长，接下来要看你愿不愿意把真相写进交接单。" },
+          ],
+          choices: [
+            {
+              id: "d3m-full-check",
+              title: "接受完整检查",
+              hint: "降低风险，损失准点与信用。",
+              effects: { stats: { onTime: -2, risk: -12, credit: -4, clues: 1, shizuru: 1 } },
+              result: [
+                { speaker: "静流", text: "配合检查会耽误时间，但至少不会让事情变成追捕。" },
+                { speaker: "艾略特", text: "我投配合检查一票。被追捕听起来太累了。" },
+              ],
+            },
+            {
+              id: "d3m-fast-pass",
+              title: "提交风险记录，申请快速通行",
+              hint: "需要莉薇娅信任 14 或线索 4。",
+              requiresAny: [{ stat: "livia", gte: 14 }, { stat: "clues", gte: 4 }],
+              effects: { stats: { onTime: -1, risk: -6, credit: 2 }, crew: { livia: 4 } },
+              result: [
+                { speaker: "莉薇娅", text: "这是我们的行车记录、研究所数据和货仓读数。静流小姐，请过目。" },
+                { speaker: "静流", text: "记录完整。我给你们快速通行，但后续说明不能省。" },
+              ],
+            },
+            {
+              id: "d3m-bypass",
+              title: "拒绝检查，绕开哨站",
+              hint: "抢准点，风险和信用压力大幅上升。",
+              effects: { stats: { fuel: -15, risk: 18, credit: -12, onTime: 1 }, crew: { fran: 2, eliot: 2 } },
+              result: [
+                { speaker: "弗兰", text: "如果必须绕开，我和艾略特去后段。" },
+                { speaker: "艾略特", text: "为什么又是后段……好好好，我知道了，别这么看我。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "storm",
+          location: "污染区边界",
+          time: "中盘压力测试",
+          focus: "box",
+          lines: [
+            { speaker: "旁白", text: "窗外站牌的文字开始错位，像是有人把不属于这条线的地名贴在轨道旁。" },
+            { speaker: "遥", text: "别问哪条好。问哪条能走完。" },
+            { speaker: "波克士", text: "警告！窗外站牌与数据库不一致。建议列车长相信数据库，也相信那位快把车底盯穿的维修师。" },
+          ],
+          choices: [
+            {
+              id: "d3a-fast",
+              title: "加速穿越",
+              hint: "需要燃料 20 和车况 35，抢准点但损车。",
+              requires: [{ stat: "fuel", gte: 20 }, { stat: "condition", gte: 35 }],
+              effects: { stats: { onTime: 2, fuel: -20, condition: -10, fatigue: 10 } },
+              result: [
+                { speaker: "波克士", text: "急速穿越开始。请乘员抓稳扶手，列车长抓稳自己的虚张声势。" },
+                { speaker: "莉薇娅", text: "列车长，请不要离开形态场稳定器的范围。" },
+              ],
+            },
+            {
+              id: "d3a-slow",
+              title: "低速稳定穿越",
+              hint: "牺牲准点，降低风险。",
+              effects: { stats: { onTime: -1, risk: -8, condition: -4, morale: -4 } },
+              result: [
+                { speaker: "遥", text: "稳一点。还能走。" },
+                { speaker: "艾略特", text: "慢一点也好，至少我不用贴在墙上。" },
+              ],
+            },
+            {
+              id: "d3a-union-route",
+              title: "按静流护送路线绕行",
+              hint: "需要静流支援，风险显著下降。",
+              requires: [{ stat: "shizuru", gte: 1 }],
+              effects: { stats: { fuel: -12, onTime: -1, risk: -12, credit: 2 } },
+              result: [
+                { speaker: "静流", text: "按我的坐标走，别偏。偏了我就只能按规程拦你。" },
+                { speaker: "波克士", text: "铁盟护送路线已录入。波克士承认，本次人类方案具有参考价值。" },
+              ],
+            },
+            {
+              id: "d3a-rewrite",
+              title: "临时回写研究所校准数据",
+              hint: "需要线索 4 或研究所深度协助。",
+              requires: [{ stat: "clues", gte: 4 }],
+              effects: { stats: { clues: 1, risk: -6 }, crew: { box: -8, haruka: 4 } },
+              result: [
+                { speaker: "遥", text: "写进去。快。" },
+                { speaker: "波克士", text: "数据回写开始。全知者波克士正在承受远超半吊子列车长的计算压力。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "outpost",
+          location: "铁盟哨站通讯室",
+          time: "入城许可",
+          focus: "livia",
+          lines: [
+            { speaker: "静流", text: "我只能给你临时许可。明天日落前，如果说不清货物状态，哨站会按危险运输处理。" },
+            { speaker: "莉薇娅", text: "合同写的是抵达交接区域，不是完成交付。列车长，这一行字也许能救我们一次。" },
+          ],
+          choices: [
+            {
+              id: "d3n-temp-entry",
+              title: "申请临时入城，保留货物在车上",
+              hint: "需要莉薇娅信任 12 或线索 4。",
+              requiresAny: [{ stat: "livia", gte: 12 }, { stat: "clues", gte: 4 }],
+              effects: { stats: { credit: -4, clues: 1, risk: 4 }, crew: { livia: 4 } },
+              flags: ["cargoOnTrain"],
+              result: [
+                { speaker: "莉薇娅", text: "我会把临时入城写成风险规避。列车长，这会给我们争取一天。" },
+                { speaker: "波克士", text: "哔哔！法务型莉薇娅小姐已上线。半吊子列车长请停止露出‘我刚才居然没看见’的表情。" },
+              ],
+            },
+            {
+              id: "d3n-seal",
+              title: "接受铁盟封存，等待维护方接管",
+              hint: "走合规路线，降低风险。",
+              effects: { stats: { risk: -8, onTime: -1, credit: -2, shizuru: 1 } },
+              flags: ["sealedCargo"],
+              result: [
+                { speaker: "静流", text: "封存期间任何人不得私自接触货物。包括你，列车长。" },
+                { speaker: "艾略特", text: "听起来挺好，至少不用我守着那个会响的箱子吧？" },
+                { speaker: "弗兰", text: "你想得倒美。" },
+              ],
+            },
+            {
+              id: "d3n-handoff",
+              title: "压线提交到维护外环",
+              hint: "保信用，但 Day 4 会面对维护方追问。",
+              requires: [{ stat: "onTime", gte: 2 }, { stat: "condition", gte: 30 }],
+              effects: { stats: { credit: 6, risk: 8, clues: -1 } },
+              flags: ["earlyHandoff"],
+              result: [
+                { speaker: "莉薇娅", text: "这只是抵达交接区域，不是最终交付。列车长，请记住这点。" },
+                { speaker: "遥", text: "还在响。" },
+              ],
+            },
+            {
+              id: "d3n-box-mask",
+              title: "调用波克士伪装货物读数",
+              hint: "高风险抢时间，消耗稳定度。",
+              requires: [{ stat: "box", gte: 45 }],
+              effects: { stats: { onTime: 1, risk: 10, clues: 1 }, crew: { box: -12 } },
+              flags: ["maskedReading"],
+              result: [
+                { speaker: "波克士", text: "伪装读数生成。声明：本机不为半吊子列车长未来的解释能力负责。" },
+                { speaker: "莉薇娅", text: "这一步我会记录。也会和您一起承担。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 4,
+      title: "修格里外环，账目变成风险",
+      slots: [
+        {
+          phase: "上午",
+          scene: "shuggly",
+          location: "修格里维护外环",
+          time: "三方问询",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "修格里城外环的现实稳定装置像沉默的高塔，维护方、商会、铁盟的通讯同时挤进车长室。" },
+            { speaker: "莉薇娅", text: "这不是普通赔付条款。它更像是在问，出事的时候谁离货物最近。" },
+          ],
+          choices: [
+            {
+              id: "d4m-liability",
+              title: "让莉薇娅整理三方责任链",
+              hint: "推进公开责任线，牺牲准点。",
+              effects: { stats: { clues: 2, onTime: -1, fatigue: 6 }, crew: { livia: 6 } },
+              flags: ["liabilityChain"],
+              result: [
+                { speaker: "莉薇娅", text: "如果部件交付前失效，列车组赔。如果交付后引发故障，维护方赔。有人想让我们赶快把责任推出去。" },
+                { speaker: "波克士", text: "记录：账本型危机已升级为列车长听不懂但必须听懂的危机。" },
+              ],
+            },
+            {
+              id: "d4m-maintenance",
+              title: "优先安抚维护方，争取卸货窗口",
+              hint: "提高信用和准点，真相线变窄。",
+              effects: { stats: { credit: 4, onTime: 1, risk: 5 } },
+              result: [
+                { speaker: "莉薇娅", text: "我会尽量把措辞写得稳妥。但如果之后出问题，今天的稳妥会变成我们的压力。" },
+                { speaker: "艾略特", text: "也就是说，稳妥有时候一点也不稳妥。" },
+              ],
+            },
+            {
+              id: "d4m-seal-review",
+              title: "接受静流建议，进入封存仓复检",
+              hint: "需要信用 35，或之前配合铁盟。",
+              requires: [{ stat: "credit", gte: 35 }],
+              effects: { stats: { risk: -8, onTime: -1, shizuru: 1, credit: -4 } },
+              result: [
+                { speaker: "静流", text: "你愿意进封存仓，事情就还有按规程解决的余地。" },
+                { speaker: "弗兰", text: "至少这次不用绕开哨站了。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "dining",
+          location: "餐车",
+          time: "乘员排班",
+          focus: "fran",
+          lines: [
+            { speaker: "旁白", text: "连续三天高压后，乘员疲劳累积。弗兰把排班表摊在餐桌上，艾略特的视线则飘向餐车窗口。" },
+            { speaker: "艾略特", text: "餐车附近视野开阔，补给充足，十分适合后排支援。" },
+            { speaker: "弗兰", text: "十分适合你偷吃。" },
+          ],
+          choices: [
+            {
+              id: "d4a-fran-shift",
+              title: "让弗兰重排护卫班",
+              hint: "降低风险，提高士气。",
+              effects: { stats: { risk: -6, morale: 4, fatigue: 4 }, crew: { fran: 5 } },
+              result: [
+                { speaker: "弗兰", text: "我来排。艾略特，你的名字不会自动消失。" },
+                { speaker: "艾略特", text: "我还什么都没说呢！" },
+              ],
+            },
+            {
+              id: "d4a-eliot-easy",
+              title: "同意艾略特的省力排班",
+              hint: "降低疲劳，但增加风险。",
+              effects: { stats: { fatigue: -6, morale: 2, risk: 5 }, crew: { eliot: 4, fran: -2 } },
+              result: [
+                { speaker: "艾略特", text: "列车长英明！这绝对不是偷懒，是合理保存战力。" },
+                { speaker: "弗兰", text: "你最好真的保存出点战力。" },
+              ],
+            },
+            {
+              id: "d4a-haruka",
+              title: "去维修车厢找遥",
+              hint: "推进车货耦合线。",
+              effects: { stats: { condition: 5, clues: 1, fatigue: 6 }, crew: { haruka: 5 } },
+              result: [
+                { speaker: "遥", text: "不是松动。它在回声。" },
+                { speaker: "旁白", text: "她把记录贴在车壁上，像给列车留了一张只有它能看懂的便签。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "lounge",
+          location: "车长室",
+          time: "莉薇娅的越线",
+          focus: "livia",
+          lines: [
+            { speaker: "莉薇娅", text: "如果交接记录晚一点生成，我们还有时间复核。只是，这会违反商会流程。" },
+            { speaker: "旁白", text: "她说得很平静，手指却已经停在助理权限确认键上。" },
+          ],
+          choices: [
+            {
+              id: "d4n-stop-livia",
+              title: "阻止莉薇娅越权",
+              hint: "保信用，但莉薇娅会退回职业距离。",
+              effects: { stats: { credit: 4, risk: 4 }, crew: { livia: -2 } },
+              result: [
+                { speaker: "莉薇娅", text: "我明白。那我会按正式流程记录。" },
+                { speaker: "旁白", text: "她合上夹板，笑容仍在，但后半句话没有说出口。" },
+              ],
+            },
+            {
+              id: "d4n-allow-livia",
+              title: "允许莉薇娅延迟交接记录",
+              hint: "牺牲信用，换取风险空间和信任。",
+              effects: { stats: { clues: 1, risk: -4, credit: -8 }, crew: { livia: 8 } },
+              flags: ["liviaOverrodeLog"],
+              result: [
+                { speaker: "莉薇娅", text: "我会承担记录责任。列车长，这次请不要把我排除在外。" },
+                { speaker: "波克士", text: "检测到列车助理权限调用记录。莉薇娅小姐，是否需要本机假装没看见？" },
+              ],
+            },
+            {
+              id: "d4n-formal",
+              title: "把决定交给正式流程",
+              hint: "没有立刻损失，但后续压力上升。",
+              effects: { stats: { morale: -4 } },
+              result: [
+                { speaker: "莉薇娅", text: "正式流程不会错，只是它不会替我们多争取一秒。" },
+                { speaker: "波克士", text: "记录：所有人都选择等待麻烦排队进门。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 5,
+      title: "维护线，部件在回答",
+      slots: [
+        {
+          phase: "上午",
+          scene: "maintenance",
+          location: "现实稳定装置维护线",
+          time: "耦合确认",
+          focus: "haruka",
+          lines: [
+            { speaker: "遥", text: "它不是坏。它在借电。" },
+            { speaker: "妮蔻拉", text: "把列车当临时培养皿？有趣，但不礼貌。" },
+            { speaker: "波克士", text: "哔哔！本机建议不要把无垠号形容为培养皿，容易引发列车长无意义的情绪反弹。" },
+          ],
+          choices: [
+            {
+              id: "d5m-hold-coupling",
+              title: "让遥保持耦合并加固车底",
+              hint: "推进遥线与真相线，车况持续承压。",
+              effects: { stats: { condition: -6, clues: 2, supplies: -5 }, crew: { haruka: 8 } },
+              flags: ["couplingHeld"],
+              result: [
+                { speaker: "遥", text: "能撑。别断。" },
+                { speaker: "旁白", text: "她没有抬头，像是怕错过列车下一次细微的呼吸。" },
+              ],
+            },
+            {
+              id: "d5m-cut",
+              title: "按妮蔻拉方案切断耦合",
+              hint: "修车优先，但风险增加。",
+              effects: { stats: { condition: 8, risk: 8, clues: 1 }, crew: { haruka: -3 } },
+              result: [
+                { speaker: "妮蔻拉", text: "切断不会优雅，但能把变量分开。" },
+                { speaker: "遥", text: "太急。" },
+              ],
+            },
+            {
+              id: "d5m-force-handoff",
+              title: "交给维护方强制卸货",
+              hint: "抢准点和信用，牺牲线索。",
+              effects: { stats: { onTime: 2, credit: 6, clues: -2 }, crew: { livia: -4 } },
+              flags: ["forcedHandoff"],
+              result: [
+                { speaker: "莉薇娅", text: "我会完成交接记录。但列车长，我不确定这是不是把风险也交出去了。" },
+                { speaker: "遥", text: "它还没安静。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "cargo",
+          location: "封存仓",
+          time: "封存仓袭扰",
+          focus: "fran",
+          lines: [
+            { speaker: "旁白", text: "封存仓外传来短促警报。身份不明的目标靠近货仓门，维护方通讯被杂讯切断。" },
+            { speaker: "艾略特", text: "我能不能申请一个不会被打、不会流汗、还离出口近的位置？" },
+            { speaker: "弗兰", text: "可以。梦里。" },
+          ],
+          choices: [
+            {
+              id: "d5a-fran-front",
+              title: "让弗兰顶住封存仓入口",
+              hint: "强力降风险，增加疲劳。",
+              effects: { stats: { risk: -8, morale: 3, fatigue: 8 }, crew: { fran: 5 } },
+              result: [
+                { speaker: "弗兰", text: "入口我守。艾略特，别让我回头找你。" },
+                { speaker: "艾略特", text: "我就在后面！真的在！" },
+              ],
+            },
+            {
+              id: "d5a-eliot-back",
+              title: "让艾略特后排支援",
+              hint: "消耗补给，降低风险。",
+              effects: { stats: { supplies: -5, risk: -6, fatigue: 6 }, crew: { eliot: 5 } },
+              result: [
+                { speaker: "艾略特", text: "那我醒着去后排，总行了吧！" },
+                { speaker: "弗兰", text: "这句听起来像你今天最可靠的话。" },
+              ],
+            },
+            {
+              id: "d5a-both",
+              title: "让两人同时出动",
+              hint: "最大化安全，但消耗补给和人手。",
+              effects: { stats: { risk: -14, morale: 5, supplies: -8, fatigue: 8 }, crew: { fran: 4, eliot: 4 } },
+              result: [
+                { speaker: "弗兰", text: "我前压，你补后排。" },
+                { speaker: "艾略特", text: "知道啦。虽然很想说不要啊，但这次确实没得躲。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "cab",
+          location: "临时数据室",
+          time: "谁来承担责任",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "列车组确认：货物不是单纯能源部件，而是现实稳定装置维护前的动态校准核心。" },
+            { speaker: "莉薇娅", text: "它必须带着异常数据抵达，但不能在失控状态交付。换句话说，我们必须证明自己为什么没有立刻交出去。" },
+          ],
+          choices: [
+            {
+              id: "d5n-livia-record",
+              title: "让莉薇娅整理完整责任记录",
+              hint: "推进公开责任链。",
+              effects: { stats: { clues: 2, fatigue: 6 }, crew: { livia: 5 } },
+              flags: ["fullLiabilityRecord"],
+              result: [
+                { speaker: "莉薇娅", text: "我会把每一次选择都写进去。包括那些我们不想承认的迟疑。" },
+                { speaker: "波克士", text: "本机建议附录中增加列车长惊慌但努力保持镇定的珍贵影像。" },
+              ],
+            },
+            {
+              id: "d5n-haruka-record",
+              title: "让遥记录技术证据",
+              hint: "推进延期复核。",
+              effects: { stats: { clues: 2, condition: -3 }, crew: { haruka: 5 } },
+              flags: ["techRecord"],
+              result: [
+                { speaker: "遥", text: "我写车说的话。" },
+                { speaker: "旁白", text: "她的记录没有多余修辞，却比任何辩解都更难忽视。" },
+              ],
+            },
+            {
+              id: "d5n-box-log",
+              title: "让波克士备份行车日志",
+              hint: "获得证据，消耗稳定度。",
+              effects: { stats: { clues: 1, risk: -3 }, crew: { box: -6 } },
+              flags: ["boxLog"],
+              result: [
+                { speaker: "波克士", text: "行车日志备份完成。附带列车长表现评分，作为历史研究材料。" },
+                { speaker: "莉薇娅", text: "波克士，评分可以单独保存。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 6,
+      title: "风暴边界，带伤穿越",
+      slots: [
+        {
+          phase: "上午",
+          scene: "storm",
+          location: "污染边界",
+          time: "撤离还是继续",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "污染边界扩大，修格里维护线要求所有非必要列车撤离。" },
+            { speaker: "静流", text: "这不是建议，是封锁命令。但如果你要解释，我给你三分钟。" },
+            { speaker: "波克士", text: "三分钟！半吊子列车长珍贵的语言组织能力即将接受严峻考验。" },
+          ],
+          choices: [
+            {
+              id: "d6m-retreat-cargo",
+              title: "带着货物撤到稳定线外",
+              hint: "需要车况 25 和燃料 15，解锁延期复核。",
+              requires: [{ stat: "condition", gte: 25 }, { stat: "fuel", gte: 15 }],
+              effects: { stats: { risk: 10, condition: -8, clues: 1, credit: -6 } },
+              flags: ["retreatedWithCargo"],
+              result: [
+                { speaker: "莉薇娅", text: "我来补充记录。列车长，请说你真正想保住的是什么。" },
+                { speaker: "遥", text: "能走。别停。" },
+              ],
+            },
+            {
+              id: "d6m-assist",
+              title: "留下协助维护方",
+              hint: "提高信用，真相线变窄。",
+              effects: { stats: { credit: 4, risk: 6, morale: -3 } },
+              flags: ["assistedMaintenance"],
+              result: [
+                { speaker: "莉薇娅", text: "我会记录我们留下的原因。也会记录维护方要求我们留下的每一句话。" },
+                { speaker: "艾略特", text: "留下来听起来很危险，撤走也很危险。成年人工作真麻烦。" },
+              ],
+            },
+            {
+              id: "d6m-union-escort",
+              title: "请求铁盟护送撤离",
+              hint: "需要静流支援。",
+              requires: [{ stat: "shizuru", gte: 1 }],
+              effects: { stats: { risk: -10, onTime: -1, credit: -2 } },
+              flags: ["unionEscort"],
+              result: [
+                { speaker: "静流", text: "按护送线走。不要让我在封锁区里第二次找你。" },
+                { speaker: "弗兰", text: "有铁盟护送，乘客至少能稳一点。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "下午",
+          scene: "cab",
+          location: "车头通道",
+          time: "列车长安危事件",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "车头风险警报响起。通道尽头的照明一盏接一盏熄灭。" },
+            { speaker: "莉薇娅", text: "不行。不是因为我不相信您，是因为我知道您又想把自己放在最后。" },
+          ],
+          choices: [
+            {
+              id: "d6a-conductor",
+              title: "亲自处理车头风险",
+              hint: "推进线索，但莉薇娅会强烈反应。",
+              effects: { stats: { clues: 1, risk: 8 }, crew: { livia: 4 } },
+              result: [
+                { speaker: "莉薇娅", text: "那我也去。请不要再说这是列车长一个人的责任。" },
+                { speaker: "波克士", text: "警告！列车助理越权概率上升。半吊子列车长责任重大。" },
+              ],
+            },
+            {
+              id: "d6a-haruka-remote",
+              title: "让遥远程处理",
+              hint: "需要遥信任 12，降低风险。",
+              requires: [{ stat: "haruka", gte: 12 }],
+              effects: { stats: { condition: -4, risk: -4, fatigue: 8 }, crew: { haruka: 4 } },
+              result: [
+                { speaker: "遥", text: "远程能做。别进去。" },
+                { speaker: "旁白", text: "她的语气没有起伏，但通讯另一端的键盘声比任何劝阻都急。" },
+              ],
+            },
+            {
+              id: "d6a-box-emergency",
+              title: "让波克士执行应急协议",
+              hint: "需要波克士稳定 40，显著消耗稳定度。",
+              requires: [{ stat: "box", gte: 40 }],
+              effects: { stats: { risk: -6, morale: -2 }, crew: { box: -15 } },
+              result: [
+                { speaker: "波克士", text: "应急协议启动。请列车长记住，本机今日英勇表现值得至少三次正式表扬。" },
+                { speaker: "莉薇娅", text: "谢谢你，波克士。列车长也是，先回来。" },
+              ],
+            },
+            {
+              id: "d6a-guards",
+              title: "让弗兰和艾略特护送处理",
+              hint: "消耗补给和疲劳，稳定局面。",
+              effects: { stats: { morale: 4, supplies: -6, risk: -6, fatigue: 8 }, crew: { fran: 4, eliot: 4 } },
+              result: [
+                { speaker: "艾略特", text: "我真的很想说不要啊……但是弗兰已经拽着我走了！" },
+                { speaker: "弗兰", text: "少说两句，省点气。" },
+              ],
+            },
+          ],
+        },
+        {
+          phase: "夜晚",
+          scene: "lounge",
+          location: "车长室",
+          time: "最后一次整理",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "所有路线进入最终结算前夜。窗外风暴像一堵移动的墙。" },
+            { speaker: "莉薇娅", text: "明天，请不要一个人决定。" },
+          ],
+          choices: [
+            {
+              id: "d6n-livia",
+              title: "和莉薇娅整理交接单",
+              hint: "补线索和莉薇娅信任。",
+              effects: { stats: { clues: 1, fatigue: 4 }, crew: { livia: 6 } },
+              result: [
+                { speaker: "莉薇娅", text: "账本写不下全部事情。所以剩下的，我会记在这里。" },
+                { speaker: "旁白", text: "她轻轻点了点自己的胸口。" },
+              ],
+            },
+            {
+              id: "d6n-haruka",
+              title: "陪遥守维修车厢",
+              hint: "补车况和遥信任。",
+              effects: { stats: { condition: 6, morale: -2 }, crew: { haruka: 5 } },
+              result: [
+                { speaker: "遥", text: "坐那边。别碰。" },
+                { speaker: "旁白", text: "她把最安全的位置让了出来，然后继续听列车的声音。" },
+              ],
+            },
+            {
+              id: "d6n-box",
+              title: "让波克士整理行车日志",
+              hint: "补线索，消耗稳定度，降低疲劳。",
+              effects: { stats: { clues: 1, fatigue: -3 }, crew: { box: -5 } },
+              result: [
+                { speaker: "波克士", text: "行车日志整理中。列车长今日表现有待评价，莉薇娅小姐今日表现无需评价，必然优秀。" },
+                { speaker: "莉薇娅", text: "谢谢你，波克士。也请不要太为难列车长。" },
+              ],
+            },
+            {
+              id: "d6n-rest-guards",
+              title: "安排弗兰和艾略特轮班休息",
+              hint: "大幅提高士气，略增风险。",
+              effects: { stats: { morale: 8, risk: 3, fatigue: -4 }, crew: { fran: 3, eliot: 3 } },
+              result: [
+                { speaker: "艾略特", text: "真的能休息？列车长，我现在觉得你特别可靠。" },
+                { speaker: "弗兰", text: "别高兴太早，轮到你还是要起来。" },
+              ],
+            },
+            {
+              id: "d6n-all-rest",
+              title: "全员休息",
+              hint: "恢复疲劳，但不补线索。",
+              effects: { stats: { fatigue: -12 } },
+              result: [
+                { speaker: "莉薇娅", text: "今天先到这里。明天的记录，我会陪您一起补上。" },
+                { speaker: "旁白", text: "这一晚，列车终于安静了一小会儿。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      day: 7,
+      title: "交付日，账本之外",
+      slots: [
+        {
+          phase: "上午",
+          scene: "maintenance",
+          location: "修格里维护终端",
+          time: "最终交接",
+          focus: "livia",
+          lines: [
+            { speaker: "旁白", text: "修格里维护方要求结算。商会要求尽快完成订单。铁盟要求记录污染边界异常。" },
+            { speaker: "莉薇娅", text: "列车长，选择吧。这一次我会把您的决定、我的决定，还有大家承担的代价全部写进去。" },
+          ],
+          choices: [
+            {
+              id: "end-ontime",
+              title: "准点交付，只提交运输结果",
+              hint: "需要准点 2 和商会信用 35。",
+              requires: [{ stat: "onTime", gte: 2 }, { stat: "credit", gte: 35 }],
+              ending: "onTime",
+              result: [
+                { speaker: "莉薇娅", text: "订单完成了。只是有些账，或许要等下一站才会真的结清。" },
+              ],
+            },
+            {
+              id: "end-review",
+              title: "延期复核，先由遥确认货物状态",
+              hint: "需要车况 25、遥信任 12、线索 4。",
+              requires: [{ stat: "condition", gte: 25 }, { stat: "haruka", gte: 12 }, { stat: "clues", gte: 4 }],
+              ending: "review",
+              result: [
+                { speaker: "遥", text: "现在不能交。会坏。" },
+                { speaker: "莉薇娅", text: "那就延期。列车长，我来写说明。" },
+              ],
+            },
+            {
+              id: "end-public",
+              title: "公开责任链，接受商会追责",
+              hint: "需要线索 6、莉薇娅信任 16。",
+              requires: [{ stat: "clues", gte: 6 }, { stat: "livia", gte: 16 }],
+              ending: "public",
+              result: [
+                { speaker: "莉薇娅", text: "账本写不下全部事情，所以剩下的，我会记在这里。列车长，下一次也请让我站在您身边。" },
+              ],
+            },
+            {
+              id: "end-union",
+              title: "交由铁盟托管",
+              hint: "需要静流支援，且风险高或商会信用低。",
+              requires: [{ stat: "shizuru", gte: 1 }],
+              ending: "union",
+              result: [
+                { speaker: "静流", text: "你没有把规程当敌人。这很好，也很少见。" },
+              ],
+            },
+            {
+              id: "end-box",
+              title: "调用波克士应急协议压线完成",
+              hint: "需要波克士稳定 45、燃料 10。",
+              requires: [{ stat: "box", gte: 45 }, { stat: "fuel", gte: 10 }],
+              effects: { crew: { box: -20 }, stats: { fuel: -10 } },
+              ending: "box",
+              result: [
+                { speaker: "波克士", text: "应急协议完成。请记住，是伟大的波克士大人拯救了半吊子列车长的准点记录。" },
+              ],
+            },
+            {
+              id: "end-storm",
+              title: "风暴停驶",
+              hint: "承认列车已经撑不住，保住乘员。",
+              ending: "storm",
+              result: [
+                { speaker: "莉薇娅", text: "今天先休息吧。明天的记录，我会陪您一起补上。" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  endings: {
+    onTime: {
+      title: "准点交付",
+      body: [
+        "列车按合同抵达并交付部件。商会信用提升，报酬完整到账。",
+        "只是异常记录被压到附录里。莉薇娅完成了账目，却在最后一页留下空白。",
+      ],
+    },
+    review: {
+      title: "延期复核",
+      body: [
+        "列车放弃准点奖励，申请由遥与维护方共同复核货物状态。",
+        "无垠号多进了一次维修仓，但现实稳定装置避免了一次带病接入。",
+      ],
+    },
+    public: {
+      title: "责任公开",
+      body: [
+        "莉薇娅整理的责任链、遥的技术记录和波克士的行车日志共同组成了完整报告。",
+        "商会追责没有立刻消失，但这一次，列车组没有让风险被漂亮账目埋掉。",
+      ],
+    },
+    union: {
+      title: "铁盟托管",
+      body: [
+        "货物被交由铁盟临时托管，列车获得安全撤离许可。",
+        "奖励不算漂亮，但静流在记录里写下了“建议放行，但保持关注”。",
+      ],
+    },
+    box: {
+      title: "压线完成",
+      body: [
+        "波克士用应急协议压线完成交接，随后进入检修模式。",
+        "它的最后一条播报是：本机表现无可挑剔，列车长表现仍待观察。",
+      ],
+    },
+    storm: {
+      title: "风暴停驶",
+      body: [
+        "无垠号没能抵达交付终端。列车停在风暴边界外，等待救援与维修。",
+        "这不是漂亮结局，但没有人被丢下。莉薇娅把未完成的记录夹进账本，说明天一起补。",
+      ],
+    },
+  },
+};

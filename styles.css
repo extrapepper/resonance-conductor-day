@@ -261,6 +261,88 @@ button:focus-visible {
     linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.34));
 }
 
+.scene-freeport .scene-light {
+  background:
+    radial-gradient(ellipse at 30% 26%, rgba(255, 210, 122, 0.26), transparent 34%),
+    radial-gradient(ellipse at 72% 34%, rgba(98, 232, 255, 0.24), transparent 36%);
+}
+
+.scene-freeport .scene-props {
+  left: 7%;
+  right: 7%;
+  bottom: 18%;
+  height: 20%;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 210, 122, 0.28) 0 12px, transparent 12px 84px),
+    linear-gradient(180deg, rgba(42, 56, 66, 0.95), rgba(12, 18, 24, 0.92));
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.46);
+}
+
+.scene-research .scene-light {
+  background:
+    radial-gradient(ellipse at 58% 28%, rgba(155, 235, 255, 0.35), transparent 34%),
+    linear-gradient(180deg, rgba(52, 90, 110, 0.14), transparent);
+}
+
+.scene-research .scene-props,
+.scene-maintenance .scene-props {
+  left: 12%;
+  right: 12%;
+  bottom: 16%;
+  height: 28%;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(98, 232, 255, 0.68) 0 3%, transparent 4%),
+    radial-gradient(circle at 68% 42%, rgba(255, 210, 122, 0.5) 0 2.5%, transparent 3.5%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 76px),
+    linear-gradient(180deg, #1b3441, #071018);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.48);
+}
+
+.scene-outpost .scene-light {
+  background:
+    radial-gradient(ellipse at 44% 30%, rgba(143, 184, 255, 0.24), transparent 36%),
+    linear-gradient(180deg, rgba(8, 18, 36, 0.18), rgba(0, 0, 0, 0.22));
+}
+
+.scene-outpost .scene-props {
+  left: 10%;
+  right: 10%;
+  bottom: 18%;
+  height: 24%;
+  background:
+    linear-gradient(90deg, rgba(70, 92, 114, 0.95) 0 20%, transparent 20% 28%, rgba(70, 92, 114, 0.95) 28% 48%, transparent 48% 56%, rgba(70, 92, 114, 0.95) 56% 76%, transparent 76%),
+    linear-gradient(180deg, #101d2c, #050912);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.52);
+}
+
+.scene-shuggly .scene-light {
+  background:
+    radial-gradient(ellipse at 70% 22%, rgba(255, 210, 122, 0.22), transparent 30%),
+    radial-gradient(ellipse at 30% 36%, rgba(98, 232, 255, 0.2), transparent 36%);
+}
+
+.scene-shuggly .scene-props {
+  left: 8%;
+  right: 8%;
+  bottom: 17%;
+  height: 30%;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 3px, transparent 3px 120px),
+    linear-gradient(180deg, #27313b, #0b1118);
+  clip-path: polygon(0 55%, 8% 25%, 18% 50%, 28% 14%, 42% 58%, 52% 20%, 64% 48%, 76% 12%, 88% 54%, 100% 28%, 100% 100%, 0 100%);
+}
+
+.scene-storm .scene-light {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255, 125, 150, 0.28), transparent 36%),
+    linear-gradient(120deg, rgba(98, 232, 255, 0.12), transparent 40%, rgba(255, 125, 150, 0.12));
+}
+
+.scene-storm .scene::after {
+  opacity: 0.72;
+}
+
 .screen-vignette {
   z-index: 10;
   pointer-events: none;
@@ -418,6 +500,37 @@ button:focus-visible {
   transition: width 220ms ease-out;
 }
 
+.resource-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.resource-pill {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--muted);
+  font-size: clamp(11px, 0.74vw, 13px);
+}
+
+.resource-pill strong {
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.resource-pill.is-danger {
+  border-color: rgba(255, 125, 150, 0.42);
+  background: rgba(255, 125, 150, 0.12);
+}
+
 #morale-bar {
   background: linear-gradient(90deg, var(--cyan), #b5fff4);
 }
@@ -440,8 +553,8 @@ button:focus-visible {
 .character {
   position: absolute;
   bottom: 0;
-  width: 18%;
-  min-width: 190px;
+  width: 15%;
+  min-width: 145px;
   height: 76%;
   border: 0;
   background: none;
@@ -466,16 +579,8 @@ button:focus-visible {
   filter: drop-shadow(0 0 28px rgba(255, 210, 122, 0.45));
 }
 
-.character[data-character="aria"] {
-  left: 12%;
-}
-
-.character[data-character="mika"] {
-  left: 40%;
-}
-
-.character[data-character="noel"] {
-  left: 67%;
+.character {
+  left: calc(6% + var(--char-index) * 17.2%);
 }
 
 .sprite-art {
@@ -512,19 +617,29 @@ button:focus-visible {
     linear-gradient(180deg, var(--sprite-main), var(--sprite-dark));
 }
 
-.character[data-character="aria"] .sprite-art {
-  --sprite-main: #384a64;
-  --sprite-dark: #151b2a;
+.character[data-character="livia"] .sprite-art {
+  --sprite-main: #4b6c88;
+  --sprite-dark: #1b2638;
 }
 
-.character[data-character="mika"] .sprite-art {
-  --sprite-main: #604b33;
-  --sprite-dark: #241810;
+.character[data-character="haruka"] .sprite-art {
+  --sprite-main: #63513f;
+  --sprite-dark: #211813;
 }
 
-.character[data-character="noel"] .sprite-art {
-  --sprite-main: #e8f1f4;
-  --sprite-dark: #536f7e;
+.character[data-character="box"] .sprite-art {
+  --sprite-main: #9aa9b4;
+  --sprite-dark: #46505b;
+}
+
+.character[data-character="fran"] .sprite-art {
+  --sprite-main: #5c6680;
+  --sprite-dark: #1c2233;
+}
+
+.character[data-character="eliot"] .sprite-art {
+  --sprite-main: #8a5f4b;
+  --sprite-dark: #2a1715;
 }
 
 .name-tag {
@@ -565,6 +680,26 @@ button:focus-visible {
   transform: translateX(-5px);
   border-color: rgba(98, 232, 255, 0.58);
   background: linear-gradient(180deg, rgba(30, 54, 70, 0.82), rgba(8, 13, 20, 0.78));
+}
+
+.location-button.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
+}
+
+.location-button em {
+  display: block;
+  margin-top: 4px;
+  color: var(--rose);
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 0.68vw, 12px);
+}
+
+.continue-button {
+  border-color: rgba(255, 210, 122, 0.5);
+  background: linear-gradient(180deg, rgba(92, 67, 24, 0.84), rgba(24, 17, 8, 0.82));
 }
 
 .location-button strong {
@@ -626,6 +761,13 @@ button:focus-visible {
 
 .story-text p {
   margin: 0 0 10px;
+}
+
+.story-text b {
+  display: inline-block;
+  min-width: 5.5em;
+  margin-right: 0.5em;
+  color: var(--gold);
 }
 
 .effect-line {
