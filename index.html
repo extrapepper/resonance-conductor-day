@@ -7,45 +7,35 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="command-header" aria-labelledby="game-title">
-        <div class="brand-lockup">
-          <p class="kicker">Resonance Fan Prototype</p>
-          <h1 id="game-title">雷索纳斯：列车长的一日</h1>
-          <p class="subtitle">在风暴边缘的三天短途值乘里，安排车务，也照看每一位乘员。</p>
+    <main class="game-root" aria-label="雷索纳斯：列车长的一日">
+      <section id="game-stage" class="game-stage scene-lounge">
+        <div class="scene scene-lounge" aria-hidden="true">
+          <div class="scene-light"></div>
+          <div class="train-ceiling"></div>
+          <div class="train-windows">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="train-floor"></div>
+          <div class="scene-props"></div>
         </div>
 
-        <section class="mission-card" aria-label="当前任务">
-          <div class="mission-topline">
-            <span>短途委托</span>
-            <strong>三日抵达</strong>
-          </div>
-          <div class="route-line" aria-hidden="true">
-            <span class="route-node route-node-active"></span>
-            <span></span>
-            <span class="route-node"></span>
-            <span></span>
-            <span class="route-node"></span>
-          </div>
-          <p>始发站台 → 风暴带边缘 → 终点补给站</p>
-        </section>
-      </header>
+        <div class="screen-vignette" aria-hidden="true"></div>
 
-      <section class="cockpit" aria-label="列车长操作台">
-        <header class="status-bar">
-          <div class="status-cell">
-            <span class="label">日期</span>
-            <strong id="day-label">第 1 天</strong>
+        <header class="top-hud" aria-label="值乘状态">
+          <div class="brand">
+            <span>Resonance Fan Prototype</span>
+            <strong>列车长的一日</strong>
           </div>
-          <div class="status-cell">
-            <span class="label">时段</span>
+          <div class="time-block">
+            <span id="day-label">第 1 天</span>
             <strong id="phase-label">上午</strong>
           </div>
-          <div class="status-cell">
-            <span class="label">执勤日志</span>
-            <strong id="log-count">0 条</strong>
+          <div class="phase-track" aria-label="时段进度">
+            <span data-phase-step="0">上午</span>
+            <span data-phase-step="1">下午</span>
+            <span data-phase-step="2">夜晚</span>
           </div>
-          <button id="restart-button" class="reset-button" type="button" title="重新开始" aria-label="重新开始">
+          <button id="restart-button" class="icon-button" type="button" aria-label="重新开始" title="重新开始">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 12a8 8 0 1 0 2.34-5.66" />
               <path d="M4 4v6h6" />
@@ -53,93 +43,54 @@
           </button>
         </header>
 
-        <div class="phase-strip" aria-label="时段进度">
-          <span data-phase-step="0">上午</span>
-          <span data-phase-step="1">下午</span>
-          <span data-phase-step="2">夜晚</span>
-        </div>
-
-        <section class="dashboard-grid">
-          <aside class="crew-panel panel" aria-label="乘员状态">
-            <div class="panel-heading">
-              <span class="eyebrow">Crew Deck</span>
-              <h2>乘员</h2>
-            </div>
-            <div id="crew-list" class="crew-list"></div>
-          </aside>
-
-          <section class="scene-panel panel" aria-live="polite">
-            <div class="scene-visual" aria-hidden="true">
-              <div class="window-glow"></div>
-              <div class="track track-a"></div>
-              <div class="track track-b"></div>
-              <div class="train-body">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-
-            <div class="scene-copy">
-              <div class="scene-title">
-                <span id="scene-location">始发站台</span>
-                <strong id="scene-time">风暴预报 17:30</strong>
-              </div>
-              <div id="story-text" class="story-text"></div>
-            </div>
-          </section>
-
-          <aside class="ops-panel panel" aria-label="车务操作">
-            <div class="panel-heading">
-              <span class="eyebrow">Train Status</span>
-              <h2>车况与行动</h2>
-            </div>
-
-            <section class="meters" aria-label="列车状态">
-              <div class="meter meter-morale">
-                <div class="meter-head">
-                  <span>士气</span><strong id="morale-value">62</strong>
-                </div>
-                <div class="meter-track"><span id="morale-bar"></span></div>
-              </div>
-              <div class="meter meter-condition">
-                <div class="meter-head">
-                  <span>车况</span><strong id="condition-value">68</strong>
-                </div>
-                <div class="meter-track"><span id="condition-bar"></span></div>
-              </div>
-              <div class="meter meter-fatigue">
-                <div class="meter-head">
-                  <span>疲劳</span><strong id="fatigue-value">24</strong>
-                </div>
-                <div class="meter-track"><span id="fatigue-bar"></span></div>
-              </div>
-            </section>
-
-            <div id="choices" class="choices"></div>
-          </aside>
-        </section>
-
-        <section class="log-panel panel" aria-label="执勤日志">
-          <div class="panel-heading compact">
-            <span class="eyebrow">Duty Log</span>
-            <h2>最近记录</h2>
+        <aside class="stat-hud" aria-label="列车状态">
+          <div class="stat-row">
+            <span>士气</span>
+            <strong id="morale-value">62</strong>
+            <i><b id="morale-bar"></b></i>
           </div>
-          <ol id="event-log"></ol>
+          <div class="stat-row">
+            <span>车况</span>
+            <strong id="condition-value">68</strong>
+            <i><b id="condition-bar"></b></i>
+          </div>
+          <div class="stat-row">
+            <span>疲劳</span>
+            <strong id="fatigue-value">24</strong>
+            <i><b id="fatigue-bar"></b></i>
+          </div>
+        </aside>
+
+        <section id="character-layer" class="character-layer" aria-label="可互动乘员"></section>
+
+        <nav id="choices" class="location-menu" aria-label="地点行动"></nav>
+
+        <section class="dialogue-box" aria-live="polite">
+          <div class="speaker-plate">
+            <span id="scene-location">休息车厢</span>
+            <strong id="scene-time">风暴预报 17:30</strong>
+          </div>
+          <div id="story-text" class="story-text"></div>
+          <div class="dialogue-footer">
+            <span id="log-count">0 条记录</span>
+            <span>非商业同人原型 / 美术为占位资产</span>
+          </div>
         </section>
+
+        <aside class="trust-hud" aria-label="乘员信任">
+          <div id="crew-list" class="crew-list"></div>
+        </aside>
+
+        <dialog id="ending-dialog" class="ending-dialog">
+          <div class="ending-card">
+            <p>Arrival Report</p>
+            <h2 id="ending-title">旅程结算</h2>
+            <div id="ending-body"></div>
+            <button id="ending-restart" class="primary-button" type="button">再跑一趟</button>
+          </div>
+        </dialog>
       </section>
-
-      <footer class="fan-notice">非商业同人原型。当前版本使用原创占位视觉，后续可替换为你提供或授权可用的素材。</footer>
     </main>
-
-    <dialog id="ending-dialog" class="ending-dialog">
-      <div class="ending-card">
-        <p class="eyebrow">Arrival Report</p>
-        <h2 id="ending-title">旅程结算</h2>
-        <div id="ending-body"></div>
-        <button id="ending-restart" class="primary-button" type="button">再跑一趟</button>
-      </div>
-    </dialog>
 
     <script src="./app.js"></script>
   </body>
