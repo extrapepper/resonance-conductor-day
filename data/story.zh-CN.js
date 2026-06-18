@@ -2,7 +2,7 @@ window.GAME_CONTENT = {
   meta: {
     title: "雷索纳斯：列车长的一日",
     subtitle: "下一站，风暴边界",
-    disclaimer: "非商业同人原型 / 立绘来自 BWIKI 资料页",
+    disclaimer: "非商业同人试玩版 / 与原作及权利方无官方关联 / 禁止商用",
   },
   phases: ["上午", "下午", "夜晚"],
   stats: {
