@@ -897,6 +897,226 @@ button:focus-visible {
   cursor: pointer;
 }
 
+/* ADV presentation pass: one focused sprite, raised dialogue, choices above text. */
+.game-stage[data-mode="prologue"] .top-hud,
+.game-stage[data-mode="slot"] .top-hud,
+.game-stage[data-mode="result"] .top-hud,
+.game-stage[data-mode="talk"] .top-hud {
+  opacity: 0.82;
+}
+
+.character-layer {
+  inset: 9% 13% 16%;
+  z-index: 22;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.character,
+.character.is-focus,
+.character:hover {
+  left: 50%;
+  bottom: -1%;
+  width: min(39%, 560px);
+  min-width: 300px;
+  height: 94%;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
+}
+
+.character:hover:not(:disabled) {
+  transform: translateX(-50%) translateY(-1.2%) scale(1.015);
+  filter: drop-shadow(0 0 30px rgba(255, 210, 122, 0.42)) drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
+}
+
+.character:disabled {
+  cursor: default;
+}
+
+.character img.sprite-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 28px 28px rgba(0, 0, 0, 0.56));
+}
+
+.sprite-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  font-size: 96px;
+  font-weight: 800;
+}
+
+.sprite-art::before,
+.sprite-art::after {
+  display: none;
+}
+
+.name-tag {
+  left: 50%;
+  right: auto;
+  bottom: 2%;
+  min-width: 118px;
+  transform: translateX(-50%);
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(12, 20, 29, 0.78), rgba(4, 8, 12, 0.7));
+}
+
+.dialogue-box {
+  left: 7%;
+  right: 7%;
+  bottom: 4.5%;
+  min-height: 24.5%;
+  border-radius: 10px;
+  padding: 34px 34px 42px;
+  z-index: 45;
+  background:
+    linear-gradient(180deg, rgba(18, 29, 41, 0.9), rgba(5, 9, 14, 0.88)),
+    radial-gradient(circle at 10% 0%, rgba(98, 232, 255, 0.16), transparent 34%);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.58), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.speaker-plate {
+  left: 28px;
+  top: -34px;
+  min-width: 250px;
+  height: 54px;
+  border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(180deg, rgba(27, 49, 63, 0.98), rgba(8, 15, 22, 0.96));
+}
+
+.speaker-plate span {
+  color: #fff3ba;
+  font-size: clamp(18px, 1.16vw, 23px);
+  letter-spacing: 0;
+}
+
+.speaker-plate strong {
+  max-width: 46vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.story-text {
+  max-width: 100%;
+  min-height: 7.8em;
+  padding-right: 18px;
+  color: #f8fbff;
+  font-size: clamp(21px, 1.42vw, 28px);
+  line-height: 1.7;
+}
+
+.story-text p {
+  margin: 0;
+}
+
+.story-text p.is-narration {
+  color: #e8f1f6;
+}
+
+.story-text b {
+  min-width: 0;
+  margin: 0;
+}
+
+.next-cue {
+  position: absolute;
+  right: 34px;
+  bottom: 18px;
+  color: rgba(255, 210, 122, 0.92);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  animation: cuePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cuePulse {
+  0%,
+  100% {
+    opacity: 0.48;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.dialogue-footer {
+  left: 34px;
+  right: 34px;
+  bottom: 15px;
+  justify-content: space-between;
+  color: rgba(215, 229, 239, 0.64);
+  font-size: 12px;
+}
+
+.location-menu {
+  right: 7%;
+  bottom: 31.5%;
+  width: min(35%, 560px);
+  min-width: 340px;
+  z-index: 50;
+}
+
+.location-button {
+  min-height: 68px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(20, 37, 50, 0.92), rgba(6, 12, 18, 0.9));
+}
+
+.location-button strong {
+  font-size: clamp(15px, 1vw, 18px);
+}
+
+.location-button small {
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.stat-hud,
+.trust-hud {
+  z-index: 38;
+  background: linear-gradient(180deg, rgba(7, 13, 20, 0.58), rgba(7, 12, 18, 0.48));
+  backdrop-filter: blur(10px);
+}
+
+.crew-card {
+  width: 100%;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.crew-card:hover:not(:disabled) {
+  background: rgba(98, 232, 255, 0.1);
+}
+
+.crew-card:disabled {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.portrait {
+  overflow: hidden;
+  background: rgba(8, 15, 22, 0.58);
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 16%;
+}
+
 @media (max-aspect-ratio: 16 / 9) {
   .game-stage {
     width: calc(100vh * 16 / 9);
@@ -929,7 +1149,27 @@ button:focus-visible {
   }
 
   .story-text {
-    max-width: 68%;
+    max-width: 100%;
+    font-size: clamp(19px, 1.32vw, 24px);
+  }
+
+  .dialogue-box {
+    left: 5%;
+    right: 5%;
+    min-height: 26%;
+    padding: 30px 26px 38px;
+  }
+
+  .location-menu {
+    right: 5%;
+    width: 40%;
+  }
+
+  .character,
+  .character.is-focus,
+  .character:hover {
+    width: 42%;
+    min-width: 260px;
   }
 }
 

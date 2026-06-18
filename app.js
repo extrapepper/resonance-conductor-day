@@ -24,6 +24,7 @@ const els = {
   endingBody: document.querySelector("#ending-body"),
   endingRestart: document.querySelector("#ending-restart"),
   phaseSteps: document.querySelectorAll("[data-phase-step]"),
+  dialogueBox: document.querySelector(".dialogue-box"),
 };
 
 let state;
@@ -42,11 +43,13 @@ function newState() {
     crew: Object.fromEntries(content.crew.map((member) => [member.stat, member.initialValue])),
     flags: new Set(),
     log: [],
-    awaitingNext: false,
     ended: false,
+    mode: "prologue",
     scene: "freeport",
     focus: "livia",
-    lastEffects: null,
+    script: [],
+    lineIndex: 0,
+    afterScript: null,
   };
 }
 
@@ -69,6 +72,99 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function currentLine() {
+  return state.script[state.lineIndex] || null;
+}
+
+function startScript(lines, options = {}) {
+  state.mode = options.mode || "script";
+  state.script = [...(lines || [])];
+  state.lineIndex = 0;
+  state.afterScript = options.after || null;
+  state.scene = options.scene || state.scene;
+  state.focus = options.focus || state.focus;
+  state.displayLocation = options.location || null;
+  state.displayTime = options.time || null;
+  els.choices.innerHTML = "";
+
+  if (!state.script.length) {
+    finishScript();
+    return;
+  }
+
+  render();
+}
+
+function advanceScript() {
+  if (state.ended || state.mode === "choice") return;
+  if (state.lineIndex < state.script.length - 1) {
+    state.lineIndex += 1;
+    render();
+    return;
+  }
+  finishScript();
+}
+
+function finishScript() {
+  const after = state.afterScript;
+  state.afterScript = null;
+
+  if (!after) {
+    state.mode = "choice";
+    renderChoices(currentSlot().choices);
+    render();
+    return;
+  }
+
+  if (after.type === "slot") {
+    startSlot();
+    return;
+  }
+
+  if (after.type === "choices") {
+    state.mode = "choice";
+    renderChoices(currentSlot().choices);
+    render();
+    return;
+  }
+
+  if (after.type === "continue") {
+    state.mode = "continue";
+    renderContinue();
+    render();
+    return;
+  }
+
+  if (after.type === "ending") {
+    showEnding(after.endingId);
+    return;
+  }
+}
+
+function startPrologue() {
+  const firstSlot = currentSlot();
+  startScript(content.prologue || firstSlot.lines, {
+    mode: "prologue",
+    scene: "freeport",
+    focus: "livia",
+    location: "7号自由港站台",
+    time: "委托开始前",
+    after: { type: "slot" },
+  });
+}
+
+function startSlot() {
+  const slot = currentSlot();
+  startScript(slot.lines, {
+    mode: "slot",
+    scene: slot.scene,
+    focus: slot.focus || "livia",
+    location: slot.location,
+    time: `第 ${currentDay().day} 天 / ${slot.time}`,
+    after: { type: "choices" },
+  });
 }
 
 function render() {
@@ -94,12 +190,40 @@ function render() {
   });
 
   els.stage.className = `game-stage scene-${state.scene || slot.scene}`;
-  els.sceneLocation.textContent = slot.location;
-  els.sceneTime.textContent = `第 ${day.day} 天 / ${slot.time}`;
+  els.stage.dataset.mode = state.mode;
 
+  renderStory();
   renderResourceHud();
   renderCrewHud();
   renderCharacters();
+}
+
+function renderStory() {
+  const line = currentLine();
+  const slot = currentSlot();
+  const speaker = line?.speaker || (state.mode === "choice" ? "行动选择" : "旁白");
+  const isNarration = speaker === "旁白";
+  const location = state.displayLocation || slot.location;
+  const time = state.displayTime || `第 ${currentDay().day} 天 / ${slot.time}`;
+
+  els.sceneLocation.textContent = isNarration ? location : speaker;
+  els.sceneTime.textContent = isNarration ? time : `${location} · ${time}`;
+
+  if (line) {
+    const text = escapeHtml(line.text);
+    const prompt = state.mode === "choice" ? "" : `<span class="next-cue">点击继续</span>`;
+    els.storyText.innerHTML = `<p class="${isNarration ? "is-narration" : ""}">${text}</p>${prompt}`;
+    return;
+  }
+
+  if (state.mode === "choice") {
+    els.storyText.innerHTML = `<p class="is-narration">请选择这一时段的行动，也可以先点选左侧乘员确认他们的状态。</p>`;
+    return;
+  }
+
+  if (state.mode === "continue") {
+    els.storyText.innerHTML = `<p class="is-narration">本段值乘记录已写入行车日志。</p>`;
+  }
 }
 
 function renderResourceHud() {
@@ -123,9 +247,12 @@ function renderCrewHud() {
   els.crewList.innerHTML = content.crew
     .map((member) => {
       const value = state.crew[member.stat];
+      const avatar = member.sprite
+        ? `<img src="${escapeHtml(member.sprite)}" alt="" draggable="false" />`
+        : escapeHtml(member.initial);
       return `
-        <article class="crew-card">
-          <div class="portrait">${escapeHtml(member.initial)}</div>
+        <button class="crew-card" type="button" data-character="${escapeHtml(member.id)}" ${state.mode === "choice" ? "" : "disabled"}>
+          <div class="portrait">${avatar}</div>
           <div>
             <div class="crew-name">
               <span>${escapeHtml(member.name)}</span>
@@ -136,47 +263,47 @@ function renderCrewHud() {
           <div class="trust-track" aria-label="${escapeHtml(member.name)} ${escapeHtml(member.valueLabel)} ${escapeHtml(value)}">
             <span style="width:${value}%"></span>
           </div>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-function renderCharacters() {
-  els.characterLayer.innerHTML = content.crew
-    .map((member, index) => {
-      const muted = state.focus !== "all" && state.focus !== member.id ? "is-muted" : "";
-      const focus = state.focus === member.id ? "is-focus" : "";
-      return `
-        <button class="character ${muted} ${focus}" type="button" data-character="${member.id}" style="--char-index:${index}" aria-label="查看${escapeHtml(member.name)}">
-          <span class="sprite-art"></span>
-          <span class="name-tag">${escapeHtml(member.name)}</span>
         </button>
       `;
     })
     .join("");
 }
 
-function renderSlot() {
-  const slot = currentSlot();
-  state.awaitingNext = false;
-  state.scene = slot.scene;
-  state.focus = slot.focus || "all";
-  els.storyText.innerHTML = formatLines(slot.lines);
-  renderChoices(slot.choices);
-  render();
+function renderCharacters() {
+  const member = activeMember();
+  if (!member) {
+    els.characterLayer.innerHTML = "";
+    return;
+  }
+
+  const sprite = member.sprite
+    ? `<img class="sprite-art" src="${escapeHtml(member.sprite)}" alt="${escapeHtml(member.name)}立绘" draggable="false" />`
+    : `<span class="sprite-art sprite-fallback">${escapeHtml(member.initial)}</span>`;
+
+  els.characterLayer.innerHTML = `
+    <button class="character is-focus" type="button" data-character="${escapeHtml(member.id)}" ${state.mode === "choice" ? "" : "disabled"} aria-label="与${escapeHtml(member.name)}对话">
+      ${sprite}
+      <span class="name-tag">${escapeHtml(member.name)}</span>
+    </button>
+  `;
 }
 
-function formatLines(lines) {
-  return lines
-    .map((line) => {
-      const speaker = line.speaker && line.speaker !== "旁白" ? `<b>${escapeHtml(line.speaker)}</b>` : "";
-      return `<p>${speaker}${escapeHtml(line.text)}</p>`;
-    })
-    .join("");
+function activeMember() {
+  const line = currentLine();
+  const explicitFocus = line?.focus || line?.character;
+  if (explicitFocus) return content.crew.find((member) => member.id === explicitFocus);
+
+  const bySpeaker = content.crew.find((member) => member.name === line?.speaker || member.id === line?.speaker);
+  if (bySpeaker) return bySpeaker;
+
+  if (state.mode === "choice" || state.mode === "continue" || state.mode === "talk") {
+    return content.crew.find((member) => member.id === state.focus);
+  }
+
+  return null;
 }
 
-function renderChoices(choices) {
+function renderChoices(choices = []) {
   els.choices.innerHTML = choices
     .map((choice) => {
       const available = isChoiceAvailable(choice);
@@ -195,8 +322,8 @@ function renderChoices(choices) {
 function renderContinue() {
   els.choices.innerHTML = `
     <button class="location-button continue-button" type="button" data-continue="true">
-      <strong>继续</strong>
-      <small>进入下一段值乘</small>
+      <strong>继续值乘</strong>
+      <small>进入下一段剧情</small>
     </button>
   `;
 }
@@ -247,34 +374,29 @@ function crewNameByStat(stat) {
 }
 
 function chooseAction(actionId) {
-  if (state.ended || state.awaitingNext) return;
+  if (state.ended || state.mode !== "choice") return;
 
   const slot = currentSlot();
   const choice = slot.choices.find((item) => item.id === actionId);
   if (!choice || !isChoiceAvailable(choice)) return;
 
   applyChoice(choice);
+  state.log.push(`第 ${currentDay().day} 天 ${slot.phase}：${choice.title}`);
 
-  const resultLines = choice.result || [];
+  const resultLines = [...(choice.result || [])];
   const effectLine = describeEffects(choice.effects);
-  els.storyText.innerHTML = [
-    ...resultLines.map((line) => {
-      const speaker = line.speaker && line.speaker !== "旁白" ? `<b>${escapeHtml(line.speaker)}</b>` : "";
-      return `<p>${speaker}${escapeHtml(line.text)}</p>`;
-    }),
-    effectLine ? `<p class="effect-line">${escapeHtml(effectLine)}</p>` : "",
-  ].join("");
-
-  state.log.push(`第 ${currentDay().day} 天 ${currentSlot().phase}：${choice.title}`);
-  render();
-
-  if (choice.ending) {
-    showEnding(choice.ending);
-    return;
+  if (effectLine) {
+    resultLines.push({ speaker: "行车日志", text: `状态变化：${effectLine}` });
   }
 
-  state.awaitingNext = true;
-  renderContinue();
+  startScript(resultLines, {
+    mode: "result",
+    scene: choice.scene || slot.scene,
+    focus: choice.focus || slot.focus || state.focus,
+    location: slot.location,
+    time: `第 ${currentDay().day} 天 / ${slot.time}`,
+    after: choice.ending ? { type: "ending", endingId: choice.ending } : { type: "continue" },
+  });
 }
 
 function applyChoice(choice) {
@@ -308,8 +430,8 @@ function describeEffects(effects = {}) {
   return parts.join(" / ");
 }
 
-function advance() {
-  if (!state.awaitingNext) return;
+function advanceTime() {
+  if (state.mode !== "continue") return;
   if (state.slotIndex < currentDay().slots.length - 1) {
     state.slotIndex += 1;
   } else if (state.dayIndex < content.timeline.length - 1) {
@@ -318,21 +440,30 @@ function advance() {
     state.stats.fatigue = clampStat("fatigue", state.stats.fatigue - 6);
     state.stats.morale = clampStat("morale", state.stats.morale + 1);
   }
-  renderSlot();
+  startSlot();
 }
 
-function showCharacterLine(characterId) {
+function talkToCharacter(characterId) {
+  if (state.ended || state.mode !== "choice") return;
+
   const member = content.crew.find((item) => item.id === characterId);
-  if (!member || state.awaitingNext) return;
+  if (!member) return;
 
-  state.focus = characterId;
   const value = state.crew[member.stat];
-  const line = value >= 55 ? member.lineHigh : value >= 35 ? member.lineMid : member.lineLow;
+  const tier = value >= 55 ? "high" : value >= 35 ? "mid" : "low";
+  const talks = member.talks || {};
+  const fallback = value >= 55 ? member.lineHigh : value >= 35 ? member.lineMid : member.lineLow;
+  const lines = talks[tier] || [{ speaker: member.name, text: fallback }];
 
-  els.sceneLocation.textContent = member.name;
-  els.sceneTime.textContent = `${member.valueLabel} ${value}`;
-  els.storyText.innerHTML = `<p><b>${escapeHtml(member.name)}</b>${escapeHtml(line)}</p>`;
-  render();
+  state.focus = member.id;
+  startScript(lines, {
+    mode: "talk",
+    scene: currentSlot().scene,
+    focus: member.id,
+    location: member.name,
+    time: `${member.valueLabel} ${value}`,
+    after: { type: "choices" },
+  });
 }
 
 function showEnding(endingId) {
@@ -360,13 +491,13 @@ function epilogueFor(member) {
 function restart() {
   state = newState();
   if (els.endingDialog.open) els.endingDialog.close();
-  renderSlot();
+  startPrologue();
 }
 
 els.choices.addEventListener("click", (event) => {
   const continueButton = event.target.closest("[data-continue]");
   if (continueButton) {
-    advance();
+    advanceTime();
     return;
   }
 
@@ -378,7 +509,25 @@ els.choices.addEventListener("click", (event) => {
 els.characterLayer.addEventListener("click", (event) => {
   const button = event.target.closest("[data-character]");
   if (!button) return;
-  showCharacterLine(button.dataset.character);
+  talkToCharacter(button.dataset.character);
+});
+
+els.crewList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-character]");
+  if (!button) return;
+  talkToCharacter(button.dataset.character);
+});
+
+els.dialogueBox.addEventListener("click", (event) => {
+  if (event.target.closest("button")) return;
+  advanceScript();
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === " " || event.key === "Enter") {
+    event.preventDefault();
+    advanceScript();
+  }
 });
 
 els.restart.addEventListener("click", restart);
