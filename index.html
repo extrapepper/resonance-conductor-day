@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>雷索纳斯：列车长的一日</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-panel" aria-labelledby="game-title">
+        <div class="hero-copy">
+          <p class="kicker">非商业同人原型</p>
+          <h1 id="game-title">雷索纳斯：列车长的一日</h1>
+          <p class="subtitle">
+            三天短途执勤，三位乘员，一辆仍在风暴边缘前进的列车。
+          </p>
+        </div>
+        <div class="train-window" aria-hidden="true">
+          <div class="rail-sky"></div>
+          <div class="rail-line rail-line-a"></div>
+          <div class="rail-line rail-line-b"></div>
+          <div class="train-silhouette">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-board" aria-label="游戏面板">
+        <header class="status-bar">
+          <div>
+            <span class="label">日期</span>
+            <strong id="day-label">第 1 天</strong>
+          </div>
+          <div>
+            <span class="label">时段</span>
+            <strong id="phase-label">上午</strong>
+          </div>
+          <div>
+            <span class="label">日志</span>
+            <strong id="log-count">0 条</strong>
+          </div>
+        </header>
+
+        <section class="meters" aria-label="列车状态">
+          <div class="meter">
+            <div class="meter-head">
+              <span>士气</span><strong id="morale-value">62</strong>
+            </div>
+            <div class="meter-track"><span id="morale-bar"></span></div>
+          </div>
+          <div class="meter">
+            <div class="meter-head">
+              <span>车况</span><strong id="condition-value">68</strong>
+            </div>
+            <div class="meter-track"><span id="condition-bar"></span></div>
+          </div>
+          <div class="meter">
+            <div class="meter-head">
+              <span>疲劳</span><strong id="fatigue-value">24</strong>
+            </div>
+            <div class="meter-track"><span id="fatigue-bar"></span></div>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <aside class="crew-panel" aria-label="乘员">
+            <div class="section-heading">
+              <h2>乘员状态</h2>
+              <button id="restart-button" class="icon-button" type="button" title="重新开始" aria-label="重新开始">↻</button>
+            </div>
+            <div id="crew-list" class="crew-list"></div>
+          </aside>
+
+          <section class="story-panel" aria-live="polite">
+            <div class="scene-title">
+              <span id="scene-location">始发站台</span>
+              <strong id="scene-time">风暴预报 17:30</strong>
+            </div>
+            <div id="story-text" class="story-text"></div>
+            <div id="choices" class="choices"></div>
+          </section>
+        </section>
+
+        <section class="log-panel" aria-label="执勤日志">
+          <h2>执勤日志</h2>
+          <ol id="event-log"></ol>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="ending-dialog" class="ending-dialog">
+      <div class="ending-card">
+        <h2 id="ending-title">旅程结算</h2>
+        <div id="ending-body"></div>
+        <button id="ending-restart" class="primary-button" type="button">再跑一趟</button>
+      </div>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
