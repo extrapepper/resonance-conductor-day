@@ -2,6 +2,7 @@
 
 > 状态：废弃。本文包含“阿莉娅 / 米卡 / 诺艾尔”等原创占位角色，不适合作为明确《雷索纳斯》同人项目的设定基础。
 > 后续台本请以 `docs/canon-casting-notes.md` 为准，使用原作乘员、原作势力和原作站点。
+> 新的可执行台本见 `docs/story-script-canon.md`，角色口吻约束见 `docs/character-voice-guide.md`。
 
 ## 设计目标
 
