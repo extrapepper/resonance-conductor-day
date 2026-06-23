@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>雷索纳斯：列车长的一日</title>
     <link rel="preload" href="./assets/bg/freeport.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="./styles.css?v=20260623-story1" />
+    <link rel="stylesheet" href="./styles.css?v=20260623-save1" />
   </head>
   <body>
     <main class="game-root" aria-label="雷索纳斯：列车长的一日">
@@ -36,6 +36,20 @@
             <span data-phase-step="1">下午</span>
             <span data-phase-step="2">夜晚</span>
           </div>
+          <button id="history-button" class="icon-button" type="button" aria-label="对话回看" title="对话回看">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 5h18" />
+              <path d="M3 12h18" />
+              <path d="M3 19h12" />
+            </svg>
+          </button>
+          <button id="save-button" class="icon-button" type="button" aria-label="存档读档" title="存档读档">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 4h12l2 2v14H5z" />
+              <path d="M8 4v6h8V4" />
+              <path d="M8 17h8" />
+            </svg>
+          </button>
           <button id="restart-button" class="icon-button" type="button" aria-label="重新开始" title="重新开始">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 12a8 8 0 1 0 2.34-5.66" />
@@ -91,10 +105,46 @@
             <button id="ending-restart" class="primary-button" type="button">再跑一趟</button>
           </div>
         </dialog>
+
+        <dialog id="history-dialog" class="system-dialog">
+          <div class="system-card">
+            <header>
+              <div>
+                <p>Dialogue Log</p>
+                <h2>对话回看</h2>
+              </div>
+              <button id="history-close" class="icon-button" type="button" aria-label="关闭对话回看" title="关闭">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+            </header>
+            <div id="history-list" class="history-list"></div>
+          </div>
+        </dialog>
+
+        <dialog id="save-dialog" class="system-dialog">
+          <div class="system-card save-card">
+            <header>
+              <div>
+                <p>Save Data</p>
+                <h2>存档 / 读档</h2>
+              </div>
+              <button id="save-close" class="icon-button" type="button" aria-label="关闭存档读档" title="关闭">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+            </header>
+            <div id="save-slots" class="save-slots"></div>
+          </div>
+        </dialog>
       </section>
     </main>
 
-    <script src="./data/story.zh-CN.js?v=20260623-story1"></script>
-    <script src="./app.js?v=20260623-story1"></script>
+    <script src="./data/story.zh-CN.js?v=20260623-save1"></script>
+    <script src="./app.js?v=20260623-save1"></script>
   </body>
 </html>

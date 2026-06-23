@@ -23,9 +23,21 @@ const els = {
   endingTitle: document.querySelector("#ending-title"),
   endingBody: document.querySelector("#ending-body"),
   endingRestart: document.querySelector("#ending-restart"),
+  historyButton: document.querySelector("#history-button"),
+  historyDialog: document.querySelector("#history-dialog"),
+  historyClose: document.querySelector("#history-close"),
+  historyList: document.querySelector("#history-list"),
+  saveButton: document.querySelector("#save-button"),
+  saveDialog: document.querySelector("#save-dialog"),
+  saveClose: document.querySelector("#save-close"),
+  saveSlots: document.querySelector("#save-slots"),
   phaseSteps: document.querySelectorAll("[data-phase-step]"),
   dialogueBox: document.querySelector(".dialogue-box"),
 };
+
+const SAVE_KEY = "resonance-conductor-day-saves-v1";
+const SAVE_SLOT_COUNT = 3;
+const HISTORY_LIMIT = 500;
 
 let state;
 
@@ -50,6 +62,7 @@ function newState() {
     script: [],
     lineIndex: 0,
     afterScript: null,
+    history: [],
   };
 }
 
@@ -92,6 +105,31 @@ function currentLine() {
   return state.script[state.lineIndex] || null;
 }
 
+function pushHistoryLine(line) {
+  if (!line?.text) return;
+  const slot = currentSlot();
+  const entry = {
+    speaker: line.speaker || "旁白",
+    text: line.text,
+    location: state.displayLocation || slot.location,
+    time: state.displayTime || `第 ${currentDay().day} 天 / ${slot.time}`,
+  };
+  const previous = state.history[state.history.length - 1];
+  if (
+    previous &&
+    previous.speaker === entry.speaker &&
+    previous.text === entry.text &&
+    previous.location === entry.location &&
+    previous.time === entry.time
+  ) {
+    return;
+  }
+  state.history.push(entry);
+  if (state.history.length > HISTORY_LIMIT) {
+    state.history.splice(0, state.history.length - HISTORY_LIMIT);
+  }
+}
+
 function startScript(lines, options = {}) {
   state.mode = options.mode || "script";
   state.script = [...(lines || [])];
@@ -108,13 +146,15 @@ function startScript(lines, options = {}) {
     return;
   }
 
+  pushHistoryLine(currentLine());
   render();
 }
 
 function advanceScript() {
-  if (state.ended || state.mode === "choice") return;
+  if (state.ended || state.mode === "choice" || state.mode === "continue" || !state.script.length) return;
   if (state.lineIndex < state.script.length - 1) {
     state.lineIndex += 1;
+    pushHistoryLine(currentLine());
     render();
     return;
   }
@@ -433,6 +473,18 @@ function renderChoiceEffects(effects = {}) {
   `;
 }
 
+function renderModeControls() {
+  if (state.mode === "choice") {
+    renderChoices(currentSlot().choices);
+    return;
+  }
+  if (state.mode === "continue") {
+    renderContinue();
+    return;
+  }
+  els.choices.innerHTML = "";
+}
+
 function chooseAction(actionId) {
   if (state.ended || state.mode !== "choice") return;
 
@@ -546,7 +598,134 @@ function epilogueFor(member) {
 function restart() {
   state = newState();
   if (els.endingDialog.open) els.endingDialog.close();
+  if (els.historyDialog.open) els.historyDialog.close();
+  if (els.saveDialog.open) els.saveDialog.close();
   startPrologue();
+}
+
+function saveKey(slotIndex) {
+  return `${SAVE_KEY}:${slotIndex}`;
+}
+
+function serializeState() {
+  return {
+    ...state,
+    flags: [...state.flags],
+    savedAt: new Date().toISOString(),
+    version: 1,
+  };
+}
+
+function hydrateState(saved) {
+  return {
+    ...newState(),
+    ...saved,
+    stats: { ...content.initialStats, ...(saved.stats || {}) },
+    crew: { ...Object.fromEntries(content.crew.map((member) => [member.stat, member.initialValue])), ...(saved.crew || {}) },
+    flags: new Set(saved.flags || []),
+    log: saved.log || [],
+    script: saved.script || [],
+    history: saved.history || [],
+    afterScript: saved.afterScript || null,
+  };
+}
+
+function loadSaves() {
+  return Array.from({ length: SAVE_SLOT_COUNT }, (_, index) => {
+    try {
+      const raw = localStorage.getItem(saveKey(index));
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+}
+
+function saveToSlot(slotIndex) {
+  localStorage.setItem(saveKey(slotIndex), JSON.stringify(serializeState()));
+  renderSaveSlots();
+}
+
+function loadFromSlot(slotIndex) {
+  const saved = loadSaves()[slotIndex];
+  if (!saved) return;
+  state = hydrateState(saved);
+  if (els.endingDialog.open) els.endingDialog.close();
+  if (els.saveDialog.open) els.saveDialog.close();
+  renderModeControls();
+  render();
+}
+
+function formatSaveTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function saveSummary(saved) {
+  if (!saved) return "空存档";
+  const day = content.timeline[saved.dayIndex];
+  const slot = day?.slots?.[saved.slotIndex];
+  const phase = slot?.phase || content.phases[saved.slotIndex % content.phases.length] || "";
+  const time = slot?.time || "未知时段";
+  return `第 ${day?.day || "?"} 天 ${phase} / ${time}`;
+}
+
+function renderSaveSlots() {
+  const saves = loadSaves();
+  els.saveSlots.innerHTML = saves
+    .map((saved, index) => {
+      const hasSave = Boolean(saved);
+      return `
+        <article class="save-slot ${hasSave ? "" : "is-empty"}">
+          <div>
+            <strong>存档 ${index + 1}</strong>
+            <span>${escapeHtml(saveSummary(saved))}</span>
+            ${hasSave ? `<em>${escapeHtml(formatSaveTime(saved.savedAt))}</em>` : ""}
+          </div>
+          <div class="save-actions">
+            <button type="button" data-save-slot="${index}">保存</button>
+            <button type="button" data-load-slot="${index}" ${hasSave ? "" : "disabled"}>读取</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function openSaveDialog() {
+  renderSaveSlots();
+  els.saveDialog.showModal();
+}
+
+function renderHistory() {
+  if (!state.history.length) {
+    els.historyList.innerHTML = `<p class="empty-history">还没有可回看的对话。</p>`;
+    return;
+  }
+  els.historyList.innerHTML = state.history
+    .map((entry) => `
+      <article class="history-entry">
+        <header>
+          <strong>${escapeHtml(entry.speaker)}</strong>
+          <span>${escapeHtml(entry.location)} · ${escapeHtml(entry.time)}</span>
+        </header>
+        <p>${escapeHtml(entry.text)}</p>
+      </article>
+    `)
+    .join("");
+  els.historyList.scrollTop = els.historyList.scrollHeight;
+}
+
+function openHistoryDialog() {
+  renderHistory();
+  els.historyDialog.showModal();
 }
 
 function preloadBackgrounds() {
@@ -588,6 +767,7 @@ els.dialogueBox.addEventListener("click", (event) => {
 });
 
 window.addEventListener("keydown", (event) => {
+  if (els.historyDialog.open || els.saveDialog.open) return;
   if (event.key === " " || event.key === "Enter") {
     event.preventDefault();
     advanceScript();
@@ -596,6 +776,21 @@ window.addEventListener("keydown", (event) => {
 
 els.restart.addEventListener("click", restart);
 els.endingRestart.addEventListener("click", restart);
+els.historyButton.addEventListener("click", openHistoryDialog);
+els.historyClose.addEventListener("click", () => els.historyDialog.close());
+els.saveButton.addEventListener("click", openSaveDialog);
+els.saveClose.addEventListener("click", () => els.saveDialog.close());
+els.saveSlots.addEventListener("click", (event) => {
+  const saveButton = event.target.closest("[data-save-slot]");
+  if (saveButton) {
+    saveToSlot(Number(saveButton.dataset.saveSlot));
+    return;
+  }
+  const loadButton = event.target.closest("[data-load-slot]");
+  if (loadButton) {
+    loadFromSlot(Number(loadButton.dataset.loadSlot));
+  }
+});
 
 restart();
 
