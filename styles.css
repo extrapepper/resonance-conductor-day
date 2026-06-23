@@ -1003,10 +1003,10 @@ button:focus-visible {
 .character.is-focus,
 .character:hover {
   left: 50%;
-  bottom: -72%;
-  width: min(118%, 1680px);
-  min-width: 940px;
-  height: 190%;
+  bottom: -96%;
+  width: min(134%, 1880px);
+  min-width: 1100px;
+  height: 222%;
   transform: translateX(-50%);
   filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
 }
@@ -1019,11 +1019,11 @@ button:focus-visible {
 .character[data-character="conductor"],
 .character[data-character="conductor"].is-focus,
 .character[data-character="conductor"]:hover {
-  left: 54%;
-  bottom: -64%;
-  width: min(92%, 1240px);
-  min-width: 720px;
-  height: 176%;
+  left: 52%;
+  bottom: -30%;
+  width: min(56%, 820px);
+  min-width: 460px;
+  height: 126%;
   transform: translateX(-42%);
 }
 
@@ -1433,10 +1433,10 @@ button:focus-visible {
   .character[data-character="conductor"].is-focus,
   .character[data-character="conductor"]:hover {
     left: 55%;
-    width: 86%;
-    min-width: 560px;
-    height: 170%;
-    bottom: -61%;
+    width: 66%;
+    min-width: 430px;
+    height: 140%;
+    bottom: -38%;
     transform: translateX(-42%);
   }
 }
@@ -1578,10 +1578,10 @@ button:focus-visible {
   .character,
   .character.is-focus,
   .character:hover {
-    width: 82%;
-    min-width: 420px;
-    height: 150%;
-    bottom: -48%;
+    width: 142%;
+    min-width: 780px;
+    height: 232%;
+    bottom: -124%;
   }
 
   .character[data-character="conductor"],
