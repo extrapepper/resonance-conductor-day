@@ -67,7 +67,17 @@ button:focus-visible {
 
 .scene {
   overflow: hidden;
+  background: #071018;
+  background-image: var(--scene-bg);
+  background-position: var(--scene-position, center center);
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: var(--scene-filter, none);
   transition: opacity 260ms ease, filter 260ms ease;
+}
+
+.game-stage.has-bg .scene {
+  background-color: #071018;
 }
 
 .scene::before,
@@ -84,11 +94,18 @@ button:focus-visible {
 .scene::before {
   inset: 0;
   background:
-    radial-gradient(circle at 22% 18%, rgba(255, 210, 122, 0.26), transparent 22%),
-    radial-gradient(circle at 78% 12%, rgba(98, 232, 255, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(5, 10, 16, 0.1), rgba(0, 0, 0, 0.42));
+    radial-gradient(circle at 22% 18%, rgba(255, 210, 122, 0.18), transparent 22%),
+    radial-gradient(circle at 78% 12%, rgba(98, 232, 255, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(5, 10, 16, 0.05), rgba(0, 0, 0, 0.48));
   z-index: 4;
   pointer-events: none;
+}
+
+.game-stage.has-bg .scene::before {
+  background:
+    linear-gradient(180deg, rgba(3, 7, 12, 0.2), rgba(3, 7, 12, 0.05) 36%, rgba(0, 0, 0, 0.5)),
+    radial-gradient(ellipse at 50% 86%, rgba(0, 0, 0, 0.58), transparent 52%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.26), transparent 18%, transparent 78%, rgba(0, 0, 0, 0.36));
 }
 
 .scene::after {
@@ -100,6 +117,33 @@ button:focus-visible {
     linear-gradient(90deg, rgba(0, 0, 0, 0.24), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.28));
   mix-blend-mode: screen;
   opacity: 0.45;
+}
+
+.game-stage.has-bg .scene::after {
+  opacity: 0.28;
+}
+
+.game-stage.has-bg .train-ceiling,
+.game-stage.has-bg .train-windows,
+.game-stage.has-bg .train-floor,
+.game-stage.has-bg .scene-props {
+  opacity: 0.12;
+  mix-blend-mode: screen;
+}
+
+.game-stage.has-bg.scene-cab .train-ceiling,
+.game-stage.has-bg.scene-cab .train-windows,
+.game-stage.has-bg.scene-cab .train-floor,
+.game-stage.has-bg.scene-cargo .train-ceiling,
+.game-stage.has-bg.scene-cargo .train-windows,
+.game-stage.has-bg.scene-cargo .train-floor,
+.game-stage.has-bg.scene-lounge .train-ceiling,
+.game-stage.has-bg.scene-lounge .train-windows,
+.game-stage.has-bg.scene-lounge .train-floor,
+.game-stage.has-bg.scene-dining .train-ceiling,
+.game-stage.has-bg.scene-dining .train-windows,
+.game-stage.has-bg.scene-dining .train-floor {
+  opacity: 0.22;
 }
 
 .scene-light {
@@ -658,21 +702,27 @@ button:focus-visible {
 }
 
 .location-menu {
-  right: 2.5%;
-  bottom: 24%;
-  width: 23%;
-  min-width: 300px;
+  right: 25%;
+  bottom: 41%;
+  width: 32%;
+  min-width: 340px;
+  max-height: 44%;
+  overflow-y: auto;
   display: grid;
   gap: 8px;
+  scrollbar-width: thin;
 }
 
 .location-button {
-  min-height: 58px;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-radius: 10px;
   color: var(--text);
   cursor: pointer;
   text-align: left;
-  padding: 10px 14px;
+  padding: 9px 13px;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
@@ -713,6 +763,38 @@ button:focus-visible {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.choice-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.effect-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 1px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  color: rgba(236, 244, 250, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 0.68vw, 12px);
+}
+
+.effect-chip.is-good {
+  border-color: rgba(131, 228, 154, 0.42);
+  color: #c8ffd4;
+  background: rgba(79, 170, 101, 0.2);
+}
+
+.effect-chip.is-bad {
+  border-color: rgba(255, 125, 150, 0.46);
+  color: #ffd0d8;
+  background: rgba(200, 61, 90, 0.2);
 }
 
 .dialogue-box {
@@ -1059,10 +1141,12 @@ button:focus-visible {
 }
 
 .location-menu {
-  right: 7%;
-  bottom: 31.5%;
-  width: min(35%, 560px);
+  right: 25%;
+  bottom: 41%;
+  width: min(32%, 520px);
   min-width: 340px;
+  max-height: 44%;
+  overflow-y: auto;
   z-index: 50;
 }
 

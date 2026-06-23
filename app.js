@@ -74,6 +74,20 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function backgroundFor(sceneKey) {
+  const slot = state ? currentSlot() : null;
+  const timeKey = slot?.time ? `${sceneKey}:${slot.time}` : "";
+  return content.backgrounds?.[timeKey] || content.backgrounds?.[sceneKey] || null;
+}
+
+function applySceneBackground(sceneKey) {
+  const background = backgroundFor(sceneKey);
+  els.stage.className = `game-stage scene-${sceneKey}${background ? " has-bg" : ""}`;
+  els.stage.style.setProperty("--scene-bg", background ? `url("${background.src}")` : "none");
+  els.stage.style.setProperty("--scene-position", background?.position || "center center");
+  els.stage.style.setProperty("--scene-filter", background?.filter || "none");
+}
+
 function currentLine() {
   return state.script[state.lineIndex] || null;
 }
@@ -189,7 +203,7 @@ function render() {
     step.classList.toggle("is-complete", index < phaseIndex());
   });
 
-  els.stage.className = `game-stage scene-${state.scene || slot.scene}`;
+  applySceneBackground(state.scene || slot.scene);
   els.stage.dataset.mode = state.mode;
 
   renderStory();
@@ -233,8 +247,9 @@ function renderResourceHud() {
       const config = content.stats[key];
       const value = state.stats[key];
       const danger = config.dangerHigh ? value >= 70 : value <= 15;
+      const title = config.help ? ` title="${escapeHtml(config.help)}"` : "";
       return `
-        <div class="resource-pill ${danger ? "is-danger" : ""}">
+        <div class="resource-pill ${danger ? "is-danger" : ""}"${title}>
           <span>${escapeHtml(config.label)}</span>
           <strong>${escapeHtml(value)}</strong>
         </div>
@@ -308,10 +323,12 @@ function renderChoices(choices = []) {
     .map((choice) => {
       const available = isChoiceAvailable(choice);
       const reason = available ? "" : `<em>${escapeHtml(requirementText(choice))}</em>`;
+      const effects = renderChoiceEffects(choice.effects);
       return `
         <button class="location-button ${available ? "" : "is-disabled"}" type="button" data-action="${escapeHtml(choice.id)}" ${available ? "" : "disabled"}>
           <strong>${escapeHtml(choice.title)}</strong>
           <small>${escapeHtml(choice.hint || "")}</small>
+          ${effects}
           ${reason}
         </button>
       `;
@@ -373,6 +390,48 @@ function crewNameByStat(stat) {
   return `${member.name}${member.valueLabel}`;
 }
 
+function effectTone(key, value, scope) {
+  if (value === 0) return "neutral";
+  if (scope === "crew") return value > 0 ? "good" : "bad";
+  const direction = content.stats[key]?.goodDirection || "high";
+  return direction === "low"
+    ? value < 0 ? "good" : "bad"
+    : value > 0 ? "good" : "bad";
+}
+
+function effectParts(effects = {}) {
+  const parts = [];
+  for (const [key, value] of Object.entries(effects.stats || {})) {
+    parts.push({
+      key,
+      label: content.stats[key]?.label || key,
+      value,
+      tone: effectTone(key, value, "stat"),
+    });
+  }
+  for (const [key, value] of Object.entries(effects.crew || {})) {
+    parts.push({
+      key,
+      label: crewNameByStat(key),
+      value,
+      tone: effectTone(key, value, "crew"),
+    });
+  }
+  return parts;
+}
+
+function renderChoiceEffects(effects = {}) {
+  const parts = effectParts(effects);
+  if (!parts.length) return "";
+  return `
+    <span class="choice-effects" aria-label="行动影响">
+      ${parts
+        .map((part) => `<span class="effect-chip is-${part.tone}">${escapeHtml(part.label)} ${part.value > 0 ? "+" : ""}${escapeHtml(part.value)}</span>`)
+        .join("")}
+    </span>
+  `;
+}
+
 function chooseAction(actionId) {
   if (state.ended || state.mode !== "choice") return;
 
@@ -420,14 +479,9 @@ function applyChoice(choice) {
 }
 
 function describeEffects(effects = {}) {
-  const parts = [];
-  for (const [key, value] of Object.entries(effects.stats || {})) {
-    parts.push(`${content.stats[key]?.label || key} ${value > 0 ? "+" : ""}${value}`);
-  }
-  for (const [key, value] of Object.entries(effects.crew || {})) {
-    parts.push(`${crewNameByStat(key)} ${value > 0 ? "+" : ""}${value}`);
-  }
-  return parts.join(" / ");
+  return effectParts(effects)
+    .map((part) => `${part.label} ${part.value > 0 ? "+" : ""}${part.value}`)
+    .join(" / ");
 }
 
 function advanceTime() {

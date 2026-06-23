@@ -1307,6 +1307,102 @@ const characterScripts = {
   },
 };
 
+Object.assign(window.GAME_CONTENT.stats.morale, {
+  goodDirection: "high",
+  help: "士气越高，乘员越愿意主动补位；过低时部分强压风险的选项会失去缓冲。",
+});
+Object.assign(window.GAME_CONTENT.stats.condition, {
+  goodDirection: "high",
+  help: "车况越高，列车越能承受污染边界和高速调度带来的损耗。",
+});
+Object.assign(window.GAME_CONTENT.stats.fatigue, {
+  goodDirection: "low",
+  help: "疲劳越低越好；疲劳过高会让夜间行动更容易出事故。",
+});
+Object.assign(window.GAME_CONTENT.stats.fuel, {
+  goodDirection: "high",
+  help: "燃料是改线、绕行和强行穿越的基础资源。",
+});
+Object.assign(window.GAME_CONTENT.stats.supplies, {
+  goodDirection: "high",
+  help: "补给用于安抚乘员、封锁车厢和处理临时伤情。",
+});
+Object.assign(window.GAME_CONTENT.stats.onTime, {
+  goodDirection: "high",
+  help: "准点越高，商会和站点越容易配合；过度绕行会消耗它。",
+});
+Object.assign(window.GAME_CONTENT.stats.clues, {
+  goodDirection: "high",
+  help: "线索决定你能否看清异常货箱与污染边界背后的真正风险。",
+});
+Object.assign(window.GAME_CONTENT.stats.risk, {
+  goodDirection: "low",
+  help: "风险越低越好；风险累积过高时，终局会更容易滑向失控。",
+});
+Object.assign(window.GAME_CONTENT.stats.credit, {
+  goodDirection: "high",
+  help: "商会信用影响补给、通行和临时支援。",
+});
+Object.assign(window.GAME_CONTENT.stats.shizuru, {
+  goodDirection: "high",
+  help: "静流支援是特殊外援标记，通常来自更谨慎或更有人情味的选择。",
+});
+
+window.GAME_CONTENT.backgrounds = {
+  freeport: {
+    src: "./assets/bg/freeport.png",
+    position: "center 48%",
+  },
+  cargo: {
+    src: "./assets/bg/train-station.png",
+    position: "center 56%",
+    filter: "saturate(0.92) brightness(0.86)",
+  },
+  lounge: {
+    src: "./assets/bg/freeport-night.png",
+    position: "center 50%",
+    filter: "brightness(0.82) saturate(0.95)",
+  },
+  research: {
+    src: "./assets/bg/anita-factory.png",
+    position: "center 48%",
+    filter: "brightness(0.9)",
+  },
+  cab: {
+    src: "./assets/bg/rail-bridge.png",
+    position: "center 48%",
+    filter: "brightness(0.88) saturate(0.9)",
+  },
+  dining: {
+    src: "./assets/bg/city-metro.png",
+    position: "center 52%",
+    filter: "brightness(0.86) saturate(0.92)",
+  },
+  outpost: {
+    src: "./assets/bg/outpost.png",
+    position: "center 50%",
+  },
+  "outpost:夜晚": {
+    src: "./assets/bg/outpost-night.png",
+    position: "center 50%",
+    filter: "brightness(0.9) saturate(0.96)",
+  },
+  storm: {
+    src: "./assets/bg/storm.png",
+    position: "center 50%",
+    filter: "brightness(0.85) saturate(0.86)",
+  },
+  shuggly: {
+    src: "./assets/bg/shuggly.png",
+    position: "center 50%",
+  },
+  maintenance: {
+    src: "./assets/bg/data-center.png",
+    position: "center 52%",
+    filter: "brightness(0.84)",
+  },
+};
+
 for (const member of window.GAME_CONTENT.crew) {
   Object.assign(member, characterScripts[member.id] || {});
 }
