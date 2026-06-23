@@ -29,6 +29,14 @@ window.GAME_CONTENT = {
     credit: 55,
     shizuru: 0,
   },
+  cast: [
+    {
+      id: "conductor",
+      name: "列车长",
+      initial: "长",
+      sprite: "./assets/characters/conductor.png",
+    },
+  ],
   crew: [
     {
       id: "livia",

@@ -331,25 +331,30 @@ function renderCharacters() {
     els.characterLayer.innerHTML = "";
     return;
   }
+  const canTalk = state.mode === "choice" && content.crew.some((crewMember) => crewMember.id === member.id);
 
   const sprite = member.sprite
     ? `<img class="sprite-art" src="${escapeHtml(member.sprite)}" alt="${escapeHtml(member.name)}立绘" draggable="false" />`
     : `<span class="sprite-art sprite-fallback">${escapeHtml(member.initial)}</span>`;
 
   els.characterLayer.innerHTML = `
-    <button class="character is-focus" type="button" data-character="${escapeHtml(member.id)}" ${state.mode === "choice" ? "" : "disabled"} aria-label="与${escapeHtml(member.name)}对话">
+    <button class="character is-focus" type="button" data-character="${escapeHtml(member.id)}" ${canTalk ? "" : "disabled"} aria-label="与${escapeHtml(member.name)}对话">
       ${sprite}
       <span class="name-tag">${escapeHtml(member.name)}</span>
     </button>
   `;
 }
 
+function allCharacters() {
+  return [...(content.cast || []), ...content.crew];
+}
+
 function activeMember() {
   const line = currentLine();
   const explicitFocus = line?.focus || line?.character;
-  if (explicitFocus) return content.crew.find((member) => member.id === explicitFocus);
+  if (explicitFocus) return allCharacters().find((member) => member.id === explicitFocus);
 
-  const bySpeaker = content.crew.find((member) => member.name === line?.speaker || member.id === line?.speaker);
+  const bySpeaker = allCharacters().find((member) => member.name === line?.speaker || member.id === line?.speaker);
   if (bySpeaker) return bySpeaker;
 
   if (state.mode === "choice" || state.mode === "continue" || state.mode === "talk") {

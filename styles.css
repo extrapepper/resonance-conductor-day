@@ -1016,6 +1016,21 @@ button:focus-visible {
   filter: drop-shadow(0 0 30px rgba(255, 210, 122, 0.42)) drop-shadow(0 22px 34px rgba(0, 0, 0, 0.58));
 }
 
+.character[data-character="conductor"],
+.character[data-character="conductor"].is-focus,
+.character[data-character="conductor"]:hover {
+  left: 54%;
+  bottom: -64%;
+  width: min(92%, 1240px);
+  min-width: 720px;
+  height: 176%;
+  transform: translateX(-42%);
+}
+
+.character[data-character="conductor"]:hover:not(:disabled) {
+  transform: translateX(-42%) translateY(-0.7%) scale(1.01);
+}
+
 .character:disabled {
   cursor: default;
 }
@@ -1412,6 +1427,17 @@ button:focus-visible {
     min-width: 780px;
     height: 184%;
     bottom: -68%;
+  }
+
+  .character[data-character="conductor"],
+  .character[data-character="conductor"].is-focus,
+  .character[data-character="conductor"]:hover {
+    left: 55%;
+    width: 86%;
+    min-width: 560px;
+    height: 170%;
+    bottom: -61%;
+    transform: translateX(-42%);
   }
 }
 
