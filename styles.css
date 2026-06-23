@@ -1441,6 +1441,252 @@ button:focus-visible {
   }
 }
 
+@media (orientation: landscape) and (max-height: 560px), (orientation: landscape) and (max-width: 940px) {
+  .game-stage {
+    width: 100vw;
+    height: 100dvh;
+    aspect-ratio: auto;
+  }
+
+  .top-hud {
+    left: 1.4%;
+    right: 1.4%;
+    top: 1.8%;
+    height: 10.6%;
+    grid-template-columns: minmax(150px, 1fr) 82px minmax(190px, 0.9fr) repeat(3, 42px);
+    gap: 6px;
+  }
+
+  .brand,
+  .time-block {
+    padding: 0 10px;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .brand strong {
+    margin-top: 0;
+    font-size: clamp(16px, 2.8dvh, 22px);
+  }
+
+  .time-block span {
+    font-size: clamp(10px, 1.8dvh, 12px);
+  }
+
+  .time-block strong {
+    font-size: clamp(16px, 2.7dvh, 20px);
+  }
+
+  .phase-track {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .phase-track span {
+    font-size: clamp(11px, 2dvh, 13px);
+  }
+
+  .icon-button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .stat-hud,
+  .trust-hud {
+    top: 14%;
+    min-width: 0;
+    padding: 5px 6px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(7, 13, 20, 0.68), rgba(7, 12, 18, 0.5));
+  }
+
+  .trust-hud {
+    left: 1.4%;
+    width: 23%;
+    max-height: 43%;
+    overflow: hidden;
+  }
+
+  .crew-list {
+    gap: 2px;
+  }
+
+  .crew-card {
+    grid-template-columns: 27px minmax(0, 1fr) auto;
+    gap: 5px;
+    min-height: 28px;
+    padding: 1px 2px;
+  }
+
+  .portrait {
+    width: 27px;
+    height: 27px;
+  }
+
+  .crew-name {
+    margin-bottom: 0;
+    gap: 5px;
+    font-size: clamp(10px, 1.95dvh, 12px);
+  }
+
+  .crew-name span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .trust-track {
+    display: none;
+  }
+
+  .stat-hud {
+    right: 1.4%;
+    width: 25%;
+  }
+
+  .stat-row {
+    grid-template-columns: 30px 26px 1fr;
+    gap: 5px;
+    min-height: 20px;
+    font-size: clamp(9px, 1.75dvh, 11px);
+  }
+
+  .stat-row i {
+    height: 6px;
+  }
+
+  .resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .resource-pill {
+    min-height: 20px;
+    padding: 2px 5px;
+    gap: 4px;
+    font-size: clamp(9px, 1.65dvh, 10px);
+  }
+
+  .character-layer {
+    inset: 13% 14% 35%;
+  }
+
+  .character,
+  .character.is-focus,
+  .character:hover {
+    width: 82%;
+    min-width: 420px;
+    height: 150%;
+    bottom: -48%;
+  }
+
+  .character[data-character="conductor"],
+  .character[data-character="conductor"].is-focus,
+  .character[data-character="conductor"]:hover {
+    left: 52%;
+    width: 62%;
+    min-width: 330px;
+    height: 132%;
+    bottom: -34%;
+    transform: translateX(-40%);
+  }
+
+  .character[data-character="conductor"]:hover:not(:disabled) {
+    transform: translateX(-40%) translateY(-0.7%) scale(1.01);
+  }
+
+  .dialogue-box {
+    left: 6%;
+    right: 6%;
+    bottom: max(3.5%, env(safe-area-inset-bottom));
+    min-height: 28%;
+    max-height: 34%;
+    padding: 22px 18px 22px;
+    border-radius: 10px;
+  }
+
+  .speaker-plate {
+    left: clamp(110px, 19vw, 220px);
+    top: -24px;
+    min-width: 190px;
+    height: 36px;
+    gap: 10px;
+    padding: 0 14px;
+    border-radius: 8px 8px 4px 4px;
+  }
+
+  .speaker-plate span {
+    font-size: clamp(16px, 3.4dvh, 22px);
+  }
+
+  .speaker-plate strong {
+    font-size: clamp(10px, 1.9dvh, 12px);
+  }
+
+  .story-text {
+    max-width: 100%;
+    font-size: clamp(17px, 3.4dvh, 22px);
+    line-height: 1.5;
+  }
+
+  .story-text p {
+    margin-bottom: 6px;
+  }
+
+  .dialogue-footer {
+    left: 18px;
+    right: 18px;
+    bottom: 8px;
+    font-size: 10px;
+  }
+
+  .dialogue-footer span:last-child {
+    display: none;
+  }
+
+  .location-menu {
+    left: 30%;
+    right: auto;
+    bottom: 44%;
+    width: 40%;
+    min-width: 0;
+    max-height: 36%;
+    gap: 6px;
+  }
+
+  .location-button {
+    min-height: 50px;
+    padding: 7px 10px;
+    border-radius: 8px;
+  }
+
+  .location-button strong {
+    font-size: clamp(13px, 2.5dvh, 15px);
+  }
+
+  .location-button small {
+    font-size: clamp(10px, 1.9dvh, 12px);
+  }
+
+  .choice-effects {
+    display: none;
+  }
+
+  .system-dialog {
+    width: min(680px, 92vw);
+    max-height: 86dvh;
+  }
+
+  .system-card {
+    max-height: 86dvh;
+    padding: 14px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
