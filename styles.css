@@ -127,8 +127,8 @@ button:focus-visible {
 .game-stage.has-bg .train-windows,
 .game-stage.has-bg .train-floor,
 .game-stage.has-bg .scene-props {
-  opacity: 0.12;
-  mix-blend-mode: screen;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .game-stage.has-bg.scene-cab .train-ceiling,
@@ -143,7 +143,7 @@ button:focus-visible {
 .game-stage.has-bg.scene-dining .train-ceiling,
 .game-stage.has-bg.scene-dining .train-windows,
 .game-stage.has-bg.scene-dining .train-floor {
-  opacity: 0.22;
+  opacity: 0;
 }
 
 .scene-light {

@@ -262,8 +262,9 @@ function renderCrewHud() {
   els.crewList.innerHTML = content.crew
     .map((member) => {
       const value = state.crew[member.stat];
-      const avatar = member.sprite
-        ? `<img src="${escapeHtml(member.sprite)}" alt="" draggable="false" />`
+      const avatarSrc = member.avatar || member.sprite;
+      const avatar = avatarSrc
+        ? `<img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(member.name)}头像" draggable="false" />`
         : escapeHtml(member.initial);
       return `
         <button class="crew-card" type="button" data-character="${escapeHtml(member.id)}" ${state.mode === "choice" ? "" : "disabled"}>
@@ -548,6 +549,15 @@ function restart() {
   startPrologue();
 }
 
+function preloadBackgrounds() {
+  const urls = [...new Set(Object.values(content.backgrounds || {}).map((item) => item.src).filter(Boolean))];
+  for (const url of urls) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = url;
+  }
+}
+
 els.choices.addEventListener("click", (event) => {
   const continueButton = event.target.closest("[data-continue]");
   if (continueButton) {
@@ -588,3 +598,9 @@ els.restart.addEventListener("click", restart);
 els.endingRestart.addEventListener("click", restart);
 
 restart();
+
+if ("requestIdleCallback" in window) {
+  window.requestIdleCallback(preloadBackgrounds, { timeout: 2500 });
+} else {
+  window.setTimeout(preloadBackgrounds, 800);
+}
