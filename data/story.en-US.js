@@ -75,6 +75,7 @@
 
   content.cast[0].name = "Conductor";
   content.cast[0].initial = "Me";
+  content.cast[0].aliases = ["Me"];
 
   const crewCopy = {
     livia: {
@@ -914,7 +915,23 @@
     }
   }
 
-  content.prologue = content.timeline[0].slots[0].lines;
+  content.prologue = [
+    line(N, "Morning at Freeport VII is never truly quiet. Cargo arms still move beneath the track bridge, and the broadcast keeps reminding passengers to stay away from the temporary cordon toward the contamination zone."),
+    line(N, "The Eternal sits at the third maintenance trestle. The train has not departed, but the cargo hold already contains a deep-blue case sealed with lead. Its label reads: Anita Energy Institute, Reality Stabilization Component, Short-Range Express."),
+    line(C, "Short range, express pay, higher than usual, and we carry liability for any damage before delivery. That does not sound like a good job."),
+    line(L, "The format is correct, and the seals are correct. That is exactly why I am uneasy. Conductor, if anything is wrong with this commission, you will be the first one they hold responsible."),
+    line(B, "Beep beep! The great BOX confirms: the half-baked Conductor's nose for trouble has finally approached the crew average."),
+    line(E, "Can we raise that average a little higher by refusing outright? Personally, I fully support a safe, comfortable business model with fewer guard shifts."),
+    line(F, "You support fewer guard shifts, not safety. Conductor, the hold seal has not been forced open, but there are fresh scratches around the outer ring."),
+    line(H, "The undercarriage dislikes it."),
+    line(C, "Haruka, you mean the box?"),
+    line(H, "Mm. It is echoing."),
+    line(N, "Livia closes her clipboard, then opens it again almost immediately. It is what she does when she wants to urge caution but is still searching for a way not to cross the line."),
+    line(L, "The destination is the outer Shoggolith maintenance line. Under normal conditions, we could arrive in three days, but the weather station just updated the contamination storm warning. We have a seven-day window. After that, the entire maintenance line closes."),
+    line(C, "So the question is not whether we deliver it. It is how, where, and when we admit this has stopped being an ordinary commission."),
+    line(B, "Excellent summary. BOX recommends awarding the Conductor one point for comprehension today. Total score remains unimpressive."),
+    line(N, "The departure bell rings for the first time. The Eternal's light strips wake one after another, like a small city opening its eyes. You still have a moment to decide what the first driving record will say."),
+  ];
   content.endings = {
     onTime: {
       title: "On-Time Delivery",

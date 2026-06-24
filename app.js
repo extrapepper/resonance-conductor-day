@@ -200,11 +200,15 @@ function setLocale(locale, options = {}) {
   localStorage.setItem(LOCALE_KEY, locale);
   updateStaticText();
   if (options.restart) restart();
-  else if (state) render();
+  else if (state && options.sync !== false) {
+    syncStateToLocale();
+  } else if (state) {
+    render();
+  }
 }
 
 function toggleLocale() {
-  setLocale(currentLocale === "zh-CN" ? "en-US" : "zh-CN", { restart: true });
+  setLocale(currentLocale === "zh-CN" ? "en-US" : "zh-CN");
 }
 
 function updateStaticText() {
@@ -266,6 +270,7 @@ function newState() {
     scene: "freeport",
     focus: "livia",
     script: [],
+    scriptRef: null,
     lineIndex: 0,
     afterScript: null,
     history: [],
@@ -343,6 +348,7 @@ function pushHistoryLine(line) {
 function startScript(lines, options = {}) {
   state.mode = options.mode || "script";
   state.script = [...(lines || [])];
+  state.scriptRef = options.scriptRef || null;
   state.lineIndex = 0;
   state.afterScript = options.after || null;
   state.scene = options.scene || state.scene;
@@ -358,6 +364,124 @@ function startScript(lines, options = {}) {
 
   pushHistoryLine(currentLine());
   render();
+}
+
+function currentSlotForRef(ref) {
+  return content.timeline[ref.dayIndex]?.slots?.[ref.slotIndex] || currentSlot();
+}
+
+function resultLinesForChoice(choice) {
+  const resultLines = [...(choice.result || [])];
+  const effectLine = describeEffects(choice.effects);
+  if (effectLine) {
+    resultLines.push({ speaker: t().logSpeaker, text: `${t().statusChange}: ${effectLine}` });
+  }
+  return resultLines;
+}
+
+function talkTierForValue(value) {
+  return value >= 55 ? "high" : value >= 35 ? "mid" : "low";
+}
+
+function talkLinesForMember(member, tier, value) {
+  const talks = member.talks || {};
+  const fallback = value >= 55 ? member.lineHigh : value >= 35 ? member.lineMid : member.lineLow;
+  return talks[tier] || [{ speaker: member.name, text: fallback }];
+}
+
+function scriptConfigFromRef(ref) {
+  if (!ref) return null;
+
+  if (ref.type === "prologue") {
+    const firstSlot = content.timeline[0].slots[0];
+    return {
+      lines: content.prologue || firstSlot.lines,
+      mode: "prologue",
+      scene: "freeport",
+      focus: "livia",
+      location: firstSlot.location,
+      time: t().prologueTime,
+      after: { type: "slot" },
+    };
+  }
+
+  if (ref.type === "slot") {
+    const slot = currentSlotForRef(ref);
+    const day = content.timeline[ref.dayIndex] || currentDay();
+    return {
+      lines: slot.lines,
+      mode: "slot",
+      scene: slot.scene,
+      focus: slot.focus || "livia",
+      location: slot.location,
+      time: formatSceneTime(day.day, slot.time),
+      after: { type: "choices" },
+    };
+  }
+
+  if (ref.type === "result") {
+    const slot = currentSlotForRef(ref);
+    const day = content.timeline[ref.dayIndex] || currentDay();
+    const choice = slot.choices.find((item) => item.id === ref.choiceId);
+    if (!choice) return null;
+    return {
+      lines: resultLinesForChoice(choice),
+      mode: "result",
+      scene: choice.scene || slot.scene,
+      focus: choice.focus || slot.focus || state.focus,
+      location: slot.location,
+      time: formatSceneTime(day.day, slot.time),
+      after: choice.ending ? { type: "ending", endingId: choice.ending } : { type: "continue" },
+    };
+  }
+
+  if (ref.type === "talk") {
+    const member = content.crew.find((item) => item.id === ref.characterId);
+    if (!member) return null;
+    const value = state.crew[member.stat];
+    const tier = ref.tier || talkTierForValue(value);
+    return {
+      lines: talkLinesForMember(member, tier, value),
+      mode: "talk",
+      scene: currentSlot().scene,
+      focus: member.id,
+      location: member.name,
+      time: `${member.valueLabel} ${value}`,
+      after: { type: "choices" },
+    };
+  }
+
+  return null;
+}
+
+function syncStateToLocale() {
+  const previousLineIndex = state.lineIndex;
+  const config = scriptConfigFromRef(state.scriptRef);
+
+  if (config && state.mode !== "choice" && state.mode !== "continue") {
+    state.mode = config.mode;
+    state.script = [...(config.lines || [])];
+    state.lineIndex = Math.min(previousLineIndex, Math.max(0, state.script.length - 1));
+    state.afterScript = config.after || null;
+    state.scene = config.scene || state.scene;
+    state.focus = config.focus || state.focus;
+    state.displayLocation = config.location || null;
+    state.displayTime = config.time || null;
+  } else {
+    state.script = [];
+    state.lineIndex = 0;
+    state.afterScript = state.mode === "continue" ? { type: "continue" } : null;
+    state.displayLocation = null;
+    state.displayTime = null;
+  }
+
+  renderModeControls();
+  render();
+  if (els.historyDialog.open) renderHistory();
+  if (els.saveDialog.open) renderSaveSlots();
+  if (state.ended && state.endingId && els.endingDialog.open) {
+    showEnding(state.endingId);
+  }
 }
 
 function advanceScript() {
@@ -410,6 +534,7 @@ function startPrologue() {
   const firstSlot = currentSlot();
   startScript(content.prologue || firstSlot.lines, {
     mode: "prologue",
+    scriptRef: { type: "prologue" },
     scene: "freeport",
     focus: "livia",
     location: firstSlot.location,
@@ -422,6 +547,7 @@ function startSlot() {
   const slot = currentSlot();
   startScript(slot.lines, {
     mode: "slot",
+    scriptRef: { type: "slot", dayIndex: state.dayIndex, slotIndex: state.slotIndex },
     scene: slot.scene,
     focus: slot.focus || "livia",
     location: slot.location,
@@ -562,7 +688,7 @@ function activeMember() {
   const explicitFocus = line?.focus || line?.character;
   if (explicitFocus) return allCharacters().find((member) => member.id === explicitFocus);
 
-  const bySpeaker = allCharacters().find((member) => member.name === line?.speaker || member.id === line?.speaker);
+  const bySpeaker = allCharacters().find((member) => speakerMatchesMember(member, line?.speaker));
   if (bySpeaker) return bySpeaker;
 
   if (state.mode === "choice" || state.mode === "continue" || state.mode === "talk") {
@@ -570,6 +696,12 @@ function activeMember() {
   }
 
   return null;
+}
+
+function speakerMatchesMember(member, speaker) {
+  if (!speaker) return false;
+  const aliases = member.aliases || member.speakerAliases || [];
+  return member.name === speaker || member.id === speaker || aliases.includes(speaker);
 }
 
 function renderChoices(choices = []) {
@@ -708,14 +840,11 @@ function chooseAction(actionId) {
   applyChoice(choice);
   state.log.push(t().actionLog(currentDay().day, slot.phase, choice.title));
 
-  const resultLines = [...(choice.result || [])];
-  const effectLine = describeEffects(choice.effects);
-  if (effectLine) {
-    resultLines.push({ speaker: t().logSpeaker, text: `${t().statusChange}: ${effectLine}` });
-  }
+  const resultLines = resultLinesForChoice(choice);
 
   startScript(resultLines, {
     mode: "result",
+    scriptRef: { type: "result", dayIndex: state.dayIndex, slotIndex: state.slotIndex, choiceId: choice.id },
     scene: choice.scene || slot.scene,
     focus: choice.focus || slot.focus || state.focus,
     location: slot.location,
@@ -765,14 +894,13 @@ function talkToCharacter(characterId) {
   if (!member) return;
 
   const value = state.crew[member.stat];
-  const tier = value >= 55 ? "high" : value >= 35 ? "mid" : "low";
-  const talks = member.talks || {};
-  const fallback = value >= 55 ? member.lineHigh : value >= 35 ? member.lineMid : member.lineLow;
-  const lines = talks[tier] || [{ speaker: member.name, text: fallback }];
+  const tier = talkTierForValue(value);
+  const lines = talkLinesForMember(member, tier, value);
 
   state.focus = member.id;
   startScript(lines, {
     mode: "talk",
+    scriptRef: { type: "talk", characterId: member.id, tier },
     scene: currentSlot().scene,
     focus: member.id,
     location: member.name,
@@ -784,6 +912,7 @@ function talkToCharacter(characterId) {
 function showEnding(endingId) {
   const ending = content.endings[endingId] || content.endings.storm;
   state.ended = true;
+  state.endingId = endingId;
   const labels = {
     morale: content.stats.morale.label,
     condition: content.stats.condition.label,
@@ -799,7 +928,9 @@ function showEnding(endingId) {
       ${content.crew.map((member) => `<li>${escapeHtml(epilogueFor(member))}</li>`).join("")}
     </ul>
   `;
-  els.endingDialog.showModal();
+  if (!els.endingDialog.open) {
+    els.endingDialog.showModal();
+  }
 }
 
 function epilogueFor(member) {
