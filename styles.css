@@ -59,6 +59,56 @@ button:focus-visible {
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
 }
 
+.time-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(18, 32, 44, 0.96), rgba(2, 5, 10, 0.98) 48%, #000 100%);
+  opacity: 0;
+  transform: scale(1.012);
+  transition: opacity 320ms ease, transform 620ms ease;
+}
+
+.time-transition.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.time-transition-card {
+  min-width: min(520px, 58%);
+  padding: 28px 36px;
+  border-top: 1px solid rgba(98, 232, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 210, 122, 0.72);
+  text-align: center;
+  letter-spacing: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(98, 232, 255, 0.11), transparent),
+    rgba(3, 8, 14, 0.68);
+  box-shadow: 0 0 46px rgba(98, 232, 255, 0.14);
+}
+
+.time-transition-card strong,
+.time-transition-card span {
+  display: block;
+}
+
+.time-transition-card strong {
+  color: var(--gold);
+  font-size: clamp(28px, 4.2vh, 48px);
+  font-weight: 800;
+  text-shadow: 0 0 20px rgba(255, 210, 122, 0.28);
+}
+
+.time-transition-card span {
+  margin-top: 10px;
+  color: rgba(231, 243, 255, 0.86);
+  font-size: clamp(13px, 1.8vh, 18px);
+}
+
 .scene,
 .screen-vignette {
   position: absolute;

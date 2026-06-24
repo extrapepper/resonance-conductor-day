@@ -35,10 +35,13 @@ const UI_TEXT = {
     narrationSpeaker: "旁白",
     logSpeaker: "行车日志",
     nextCue: "点击继续",
-    choicePrompt: "请选择这一时段的行动，也可以先点选左侧乘员确认他们的状态。",
+    choicePrompt: "请选择这一时段的行动。左侧乘员头像可触发乘员对话，行动一旦确认就会写入行车日志。",
     continuePrompt: "本段值乘记录已写入行车日志。",
     continueTitle: "继续值乘",
     continueHint: "进入下一段剧情",
+    transitionTitle: (day, phase) => `第 ${day} 天 · ${phase}`,
+    transitionMeta: (location) => location,
+    transitionPrompt: (day, phase, location) => `行车时间推进至第 ${day} 天 ${phase}。下一站：${location}。`,
     requirementAny: (items) => `满足其一：${items.join(" 或 ")}`,
     requirementPrefix: (items) => `需要：${items.join(" / ")}`,
     requirementMissing: "条件不足",
@@ -98,6 +101,9 @@ const UI_TEXT = {
     continuePrompt: "This duty segment has been written into the driving log.",
     continueTitle: "Continue Duty",
     continueHint: "Proceed to the next scene",
+    transitionTitle: (day, phase) => `Day ${day} · ${phase}`,
+    transitionMeta: (location) => location,
+    transitionPrompt: (day, phase, location) => `Duty time advances to Day ${day}, ${phase}. Next stop: ${location}.`,
     requirementAny: (items) => `One of: ${items.join(" or ")}`,
     requirementPrefix: (items) => `Requires: ${items.join(" / ")}`,
     requirementMissing: "Requirements not met",
@@ -172,6 +178,19 @@ const els = {
   phaseSteps: document.querySelectorAll("[data-phase-step]"),
   dialogueBox: document.querySelector(".dialogue-box"),
 };
+
+const transitionOverlay = document.createElement("div");
+transitionOverlay.className = "time-transition";
+transitionOverlay.innerHTML = `
+  <div class="time-transition-card">
+    <strong></strong>
+    <span></span>
+  </div>
+`;
+els.stage.appendChild(transitionOverlay);
+els.transitionOverlay = transitionOverlay;
+els.transitionTitle = transitionOverlay.querySelector("strong");
+els.transitionMeta = transitionOverlay.querySelector("span");
 
 const locales = {
   "zh-CN": window.GAME_CONTENT_ZH || window.GAME_CONTENT,
@@ -591,6 +610,17 @@ function render() {
 function renderStory() {
   const line = currentLine();
   const slot = currentSlot();
+  const phase = content.phases[phaseIndex()];
+
+  if (state.mode === "transition") {
+    const location = state.displayLocation || slot.location;
+    const time = state.displayTime || formatSceneTime(currentDay().day, slot.time);
+    els.sceneLocation.textContent = location;
+    els.sceneTime.textContent = time;
+    els.storyText.innerHTML = `<p class="is-narration">${escapeHtml(t().transitionPrompt(currentDay().day, phase, location))}</p>`;
+    return;
+  }
+
   const speaker = line?.speaker || (state.mode === "choice" ? t().choiceSpeaker : t().narrationSpeaker);
   const isNarration = speaker === t().narrationSpeaker;
   const location = state.displayLocation || slot.location;
@@ -884,7 +914,33 @@ function advanceTime() {
     state.stats.fatigue = clampStat("fatigue", state.stats.fatigue - 6);
     state.stats.morale = clampStat("morale", state.stats.morale + 1);
   }
-  startSlot();
+  playTimeTransition();
+}
+
+function playTimeTransition() {
+  const day = currentDay();
+  const slot = currentSlot();
+  const phase = content.phases[phaseIndex()];
+
+  state.mode = "transition";
+  state.script = [];
+  state.scriptRef = null;
+  state.afterScript = null;
+  state.scene = slot.scene;
+  state.focus = slot.focus || state.focus;
+  state.displayLocation = slot.location;
+  state.displayTime = formatSceneTime(day.day, slot.time);
+  els.choices.innerHTML = "";
+  els.transitionTitle.textContent = t().transitionTitle(day.day, phase);
+  els.transitionMeta.textContent = t().transitionMeta(slot.location);
+  render();
+  window.setTimeout(() => {
+    els.transitionOverlay.classList.add("is-visible");
+  }, 20);
+  window.setTimeout(() => {
+    els.transitionOverlay.classList.remove("is-visible");
+    startSlot();
+  }, 980);
 }
 
 function talkToCharacter(characterId) {
@@ -936,6 +992,11 @@ function showEnding(endingId) {
 function epilogueFor(member) {
   const value = state.crew[member.stat];
   const epilogue = t().epilogue;
+  if (member.epilogues) {
+    if (value >= 55 && member.epilogues.high) return member.epilogues.high;
+    if (value >= 35 && member.epilogues.mid) return member.epilogues.mid;
+    if (member.epilogues.low) return member.epilogues.low;
+  }
   if (member.id === "box" && value < 45) return epilogue.boxLow;
   if (value >= 55) return epilogue.high(member.name);
   if (value >= 35) return epilogue.mid(member.name);
@@ -965,7 +1026,7 @@ function serializeState() {
 }
 
 function hydrateState(saved) {
-  return {
+  const hydrated = {
     ...newState(),
     ...saved,
     stats: { ...content.initialStats, ...(saved.stats || {}) },
@@ -976,6 +1037,19 @@ function hydrateState(saved) {
     history: saved.history || [],
     afterScript: saved.afterScript || null,
   };
+  if (hydrated.mode === "transition") {
+    const slot = content.timeline[hydrated.dayIndex]?.slots?.[hydrated.slotIndex];
+    hydrated.mode = "slot";
+    hydrated.script = [...(slot?.lines || [])];
+    hydrated.scriptRef = { type: "slot", dayIndex: hydrated.dayIndex, slotIndex: hydrated.slotIndex };
+    hydrated.lineIndex = 0;
+    hydrated.afterScript = { type: "choices" };
+    hydrated.scene = slot?.scene || hydrated.scene;
+    hydrated.focus = slot?.focus || hydrated.focus;
+    hydrated.displayLocation = slot?.location || null;
+    hydrated.displayTime = slot ? formatSceneTime(content.timeline[hydrated.dayIndex].day, slot.time) : null;
+  }
+  return hydrated;
 }
 
 function loadSaves() {

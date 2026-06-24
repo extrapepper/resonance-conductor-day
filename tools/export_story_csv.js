@@ -5,18 +5,23 @@ const vm = require("vm");
 const projectRoot = process.argv[2] || "D:/resonance-conductor-day";
 const outputPath =
   process.argv[3] || path.join(projectRoot, "docs", "story-review-export.csv");
+const includeAllLocales = process.argv.includes("--all-locales");
 
 function loadContent(root) {
   const context = { window: {} };
   vm.createContext(context);
-  for (const file of ["story.zh-CN.js", "story.en-US.js"]) {
-    const source = fs.readFileSync(path.join(root, "data", file), "utf8");
+  const files = includeAllLocales
+    ? ["story.zh-CN.js", "story.en-US.js", "story.rewrite.zh-CN.js"]
+    : ["story.zh-CN.js", "story.rewrite.zh-CN.js"];
+  for (const file of files) {
+    const filePath = path.join(root, "data", file);
+    if (!fs.existsSync(filePath)) continue;
+    const source = fs.readFileSync(filePath, "utf8");
     vm.runInContext(source, context, { filename: file });
   }
-  return [
-    ["zh-CN", context.window.GAME_CONTENT_ZH],
-    ["en-US", context.window.GAME_CONTENT_EN],
-  ];
+  const locales = [["zh-CN", context.window.GAME_CONTENT_ZH]];
+  if (includeAllLocales && context.window.GAME_CONTENT_EN) locales.push(["en-US", context.window.GAME_CONTENT_EN]);
+  return locales;
 }
 
 function csvCell(value) {
@@ -183,6 +188,18 @@ function buildRowsForLocale(locale, content) {
           talks[lineIndex],
           lineIndex + 1,
         );
+      }
+
+      if (member.epilogues?.[tier]) {
+        rows.push({
+          locale,
+          section: "crew",
+          type: `crew_epilogue_${tier}`,
+          source_id: `${member.id}.epilogues.${tier}`,
+          character_id: member.id,
+          speaker: member.name,
+          text: member.epilogues[tier],
+        });
       }
     }
   }
