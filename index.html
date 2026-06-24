@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>雷索纳斯：列车长的一日</title>
     <link rel="preload" href="./assets/bg/freeport.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="./styles.css?v=20260623-sprite2" />
+    <link rel="stylesheet" href="./styles.css?v=20260624-i18n1" />
   </head>
   <body>
-    <main class="game-root" aria-label="雷索纳斯：列车长的一日">
+    <main class="game-root" aria-label="雷索纳斯：列车长的一日" data-i18n-aria="appLabel">
       <section id="game-stage" class="game-stage scene-lounge">
         <div class="scene scene-lounge" aria-hidden="true">
           <div class="scene-light"></div>
@@ -22,20 +22,23 @@
 
         <div class="screen-vignette" aria-hidden="true"></div>
 
-        <header class="top-hud" aria-label="值乘状态">
+        <header class="top-hud" aria-label="值乘状态" data-i18n-aria="dutyStatus">
           <div class="brand">
-            <span>Resonance Fan Prototype</span>
-            <strong>列车长的一日</strong>
+            <span id="brand-kicker">Resonance Fan Prototype</span>
+            <strong id="brand-title">列车长的一日</strong>
           </div>
           <div class="time-block">
             <span id="day-label">第 1 天</span>
             <strong id="phase-label">上午</strong>
           </div>
-          <div class="phase-track" aria-label="时段进度">
+          <div class="phase-track" aria-label="时段进度" data-i18n-aria="phaseProgress">
             <span data-phase-step="0">上午</span>
             <span data-phase-step="1">下午</span>
             <span data-phase-step="2">夜晚</span>
           </div>
+          <button id="language-button" class="icon-button language-button" type="button" aria-label="Switch Language" title="Switch Language">
+            <span id="language-label">EN</span>
+          </button>
           <button id="history-button" class="icon-button" type="button" aria-label="对话回看" title="对话回看">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M3 5h18" />
@@ -58,28 +61,28 @@
           </button>
         </header>
 
-        <aside class="stat-hud" aria-label="列车状态">
+        <aside class="stat-hud" aria-label="列车状态" data-i18n-aria="trainStatus">
           <div class="stat-row">
-            <span>士气</span>
+            <span id="morale-label">士气</span>
             <strong id="morale-value">62</strong>
             <i><b id="morale-bar"></b></i>
           </div>
           <div class="stat-row">
-            <span>车况</span>
+            <span id="condition-label">车况</span>
             <strong id="condition-value">68</strong>
             <i><b id="condition-bar"></b></i>
           </div>
           <div class="stat-row">
-            <span>疲劳</span>
+            <span id="fatigue-label">疲劳</span>
             <strong id="fatigue-value">24</strong>
             <i><b id="fatigue-bar"></b></i>
           </div>
           <div id="resource-list" class="resource-list"></div>
         </aside>
 
-        <section id="character-layer" class="character-layer" aria-label="可互动乘员"></section>
+        <section id="character-layer" class="character-layer" aria-label="可互动乘员" data-i18n-aria="interactiveCrew"></section>
 
-        <nav id="choices" class="location-menu" aria-label="地点行动"></nav>
+        <nav id="choices" class="location-menu" aria-label="地点行动" data-i18n-aria="locationActions"></nav>
 
         <section class="dialogue-box" aria-live="polite">
           <div class="speaker-plate">
@@ -89,17 +92,17 @@
           <div id="story-text" class="story-text"></div>
           <div class="dialogue-footer">
             <span id="log-count">0 条记录</span>
-            <span>非商业同人试玩版 / 与原作及权利方无官方关联 / 禁止商用</span>
+            <span id="disclaimer-text">非商业同人试玩版 / 与原作及权利方无官方关联 / 禁止商用</span>
           </div>
         </section>
 
-        <aside class="trust-hud" aria-label="乘员信任">
+        <aside class="trust-hud" aria-label="乘员信任" data-i18n-aria="crewTrust">
           <div id="crew-list" class="crew-list"></div>
         </aside>
 
         <dialog id="ending-dialog" class="ending-dialog">
           <div class="ending-card">
-            <p>Arrival Report</p>
+            <p id="ending-kicker">Arrival Report</p>
             <h2 id="ending-title">旅程结算</h2>
             <div id="ending-body"></div>
             <button id="ending-restart" class="primary-button" type="button">再跑一趟</button>
@@ -110,8 +113,8 @@
           <div class="system-card">
             <header>
               <div>
-                <p>Dialogue Log</p>
-                <h2>对话回看</h2>
+                <p id="history-kicker">Dialogue Log</p>
+                <h2 id="history-title">对话回看</h2>
               </div>
               <button id="history-close" class="icon-button" type="button" aria-label="关闭对话回看" title="关闭">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -128,8 +131,8 @@
           <div class="system-card save-card">
             <header>
               <div>
-                <p>Save Data</p>
-                <h2>存档 / 读档</h2>
+                <p id="save-kicker">Save Data</p>
+                <h2 id="save-title">存档 / 读档</h2>
               </div>
               <button id="save-close" class="icon-button" type="button" aria-label="关闭存档读档" title="关闭">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -144,7 +147,8 @@
       </section>
     </main>
 
-    <script src="./data/story.zh-CN.js?v=20260623-sprite2"></script>
-    <script src="./app.js?v=20260623-sprite2"></script>
+    <script src="./data/story.zh-CN.js?v=20260624-i18n1"></script>
+    <script src="./data/story.en-US.js?v=20260624-i18n1"></script>
+    <script src="./app.js?v=20260624-i18n1"></script>
   </body>
 </html>

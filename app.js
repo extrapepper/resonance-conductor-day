@@ -1,10 +1,141 @@
-const content = window.GAME_CONTENT;
+const LOCALE_KEY = "resonance-conductor-day-locale-v1";
+const SAVE_KEY = "resonance-conductor-day-saves-v1";
+const SAVE_SLOT_COUNT = 3;
+const HISTORY_LIMIT = 500;
+
+const UI_TEXT = {
+  "zh-CN": {
+    appLabel: "雷索纳斯：列车长的一日",
+    dutyStatus: "值乘状态",
+    phaseProgress: "时段进度",
+    trainStatus: "列车状态",
+    interactiveCrew: "可互动乘员",
+    locationActions: "地点行动",
+    crewTrust: "乘员信任",
+    brandKicker: "Resonance Fan Prototype",
+    brandTitle: "列车长的一日",
+    languageButton: "Switch to English",
+    languageLabel: "EN",
+    historyButton: "对话回看",
+    saveButton: "存档读档",
+    restartButton: "重新开始",
+    close: "关闭",
+    historyKicker: "Dialogue Log",
+    historyTitle: "对话回看",
+    saveKicker: "Save Data",
+    saveTitle: "存档 / 读档",
+    endingKicker: "Arrival Report",
+    endingFallbackTitle: "旅程结算",
+    endingRestart: "再跑一趟",
+    prologueTime: "委托开始前",
+    dayLabel: (day) => `第 ${day} 天`,
+    sceneTime: (day, time) => `第 ${day} 天 / ${time}`,
+    logCount: (count) => `${count} 条记录`,
+    choiceSpeaker: "行动选择",
+    narrationSpeaker: "旁白",
+    logSpeaker: "行车日志",
+    nextCue: "点击继续",
+    choicePrompt: "请选择这一时段的行动，也可以先点选左侧乘员确认他们的状态。",
+    continuePrompt: "本段值乘记录已写入行车日志。",
+    continueTitle: "继续值乘",
+    continueHint: "进入下一段剧情",
+    requirementAny: (items) => `满足其一：${items.join(" 或 ")}`,
+    requirementPrefix: (items) => `需要：${items.join(" / ")}`,
+    requirementMissing: "条件不足",
+    effectsAria: "行动影响",
+    statusChange: "状态变化",
+    actionLog: (day, phase, title) => `第 ${day} 天 ${phase}：${title}`,
+    talkAria: (name) => `与${name}对话`,
+    avatarAlt: (name) => `${name}头像`,
+    spriteAlt: (name) => `${name}立绘`,
+    finalStats: (stats, labels) =>
+      `最终状态：${labels.morale} ${stats.morale} / ${labels.condition} ${stats.condition} / ${labels.fatigue} ${stats.fatigue} / ${labels.clues} ${stats.clues} / ${labels.credit} ${stats.credit}`,
+    epilogue: {
+      boxLow: "波克士进入检修模式，仍坚持把本次功劳记在自己名下。",
+      high: (name) => `${name}在结算后主动留下，参与下一班车的准备。`,
+      mid: (name) => `${name}完成了自己的记录，临走前和你交换了一个短短的点头。`,
+      low: (name) => `${name}仍保持着一点距离，但把今日报告放到了你的桌面正中。`,
+    },
+    emptySave: "空存档",
+    unknownTime: "未知时段",
+    saveSlot: (index) => `存档 ${index}`,
+    save: "保存",
+    load: "读取",
+    emptyHistory: "还没有可回看的对话。",
+  },
+  "en-US": {
+    appLabel: "Resonance: A Conductor's Day",
+    dutyStatus: "Duty Status",
+    phaseProgress: "Time Progress",
+    trainStatus: "Train Status",
+    interactiveCrew: "Interactive Crew",
+    locationActions: "Location Actions",
+    crewTrust: "Crew Trust",
+    brandKicker: "Resonance Fan Prototype",
+    brandTitle: "A Conductor's Day",
+    languageButton: "切换为中文",
+    languageLabel: "中",
+    historyButton: "Dialogue Log",
+    saveButton: "Save / Load",
+    restartButton: "Restart",
+    close: "Close",
+    historyKicker: "Dialogue Log",
+    historyTitle: "Dialogue Log",
+    saveKicker: "Save Data",
+    saveTitle: "Save / Load",
+    endingKicker: "Arrival Report",
+    endingFallbackTitle: "Journey Report",
+    endingRestart: "Run Again",
+    prologueTime: "Before the Commission",
+    dayLabel: (day) => `Day ${day}`,
+    sceneTime: (day, time) => `Day ${day} / ${time}`,
+    logCount: (count) => `${count} log${count === 1 ? "" : "s"}`,
+    choiceSpeaker: "Action",
+    narrationSpeaker: "Narration",
+    logSpeaker: "Driving Log",
+    nextCue: "Click to continue",
+    choicePrompt: "Choose an action for this time slot. You can also tap a crew member on the left to check in first.",
+    continuePrompt: "This duty segment has been written into the driving log.",
+    continueTitle: "Continue Duty",
+    continueHint: "Proceed to the next scene",
+    requirementAny: (items) => `One of: ${items.join(" or ")}`,
+    requirementPrefix: (items) => `Requires: ${items.join(" / ")}`,
+    requirementMissing: "Requirements not met",
+    effectsAria: "Action effects",
+    statusChange: "Status change",
+    actionLog: (day, phase, title) => `Day ${day} ${phase}: ${title}`,
+    talkAria: (name) => `Talk with ${name}`,
+    avatarAlt: (name) => `${name} avatar`,
+    spriteAlt: (name) => `${name} sprite`,
+    finalStats: (stats, labels) =>
+      `Final status: ${labels.morale} ${stats.morale} / ${labels.condition} ${stats.condition} / ${labels.fatigue} ${stats.fatigue} / ${labels.clues} ${stats.clues} / ${labels.credit} ${stats.credit}`,
+    epilogue: {
+      boxLow: "BOX enters maintenance mode while still insisting all credit belongs to itself.",
+      high: (name) => `${name} stays behind after the report and helps prepare the next run.`,
+      mid: (name) => `${name} finishes their own record and trades a brief nod with you before leaving.`,
+      low: (name) => `${name} keeps a little distance, but places today's report squarely at the center of your desk.`,
+    },
+    emptySave: "Empty Slot",
+    unknownTime: "Unknown Time",
+    saveSlot: (index) => `Slot ${index}`,
+    save: "Save",
+    load: "Load",
+    emptyHistory: "No dialogue has been logged yet.",
+  },
+};
 
 const els = {
+  root: document.querySelector(".game-root"),
   stage: document.querySelector("#game-stage"),
+  brandKicker: document.querySelector("#brand-kicker"),
+  brandTitle: document.querySelector("#brand-title"),
   day: document.querySelector("#day-label"),
   phase: document.querySelector("#phase-label"),
   logCount: document.querySelector("#log-count"),
+  disclaimer: document.querySelector("#disclaimer-text"),
+  moraleLabel: document.querySelector("#morale-label"),
+  conditionLabel: document.querySelector("#condition-label"),
+  fatigueLabel: document.querySelector("#fatigue-label"),
   moraleValue: document.querySelector("#morale-value"),
   conditionValue: document.querySelector("#condition-value"),
   fatigueValue: document.querySelector("#fatigue-value"),
@@ -18,28 +149,103 @@ const els = {
   sceneTime: document.querySelector("#scene-time"),
   storyText: document.querySelector("#story-text"),
   choices: document.querySelector("#choices"),
+  languageButton: document.querySelector("#language-button"),
+  languageLabel: document.querySelector("#language-label"),
   restart: document.querySelector("#restart-button"),
   endingDialog: document.querySelector("#ending-dialog"),
+  endingKicker: document.querySelector("#ending-kicker"),
   endingTitle: document.querySelector("#ending-title"),
   endingBody: document.querySelector("#ending-body"),
   endingRestart: document.querySelector("#ending-restart"),
   historyButton: document.querySelector("#history-button"),
   historyDialog: document.querySelector("#history-dialog"),
+  historyKicker: document.querySelector("#history-kicker"),
+  historyTitle: document.querySelector("#history-title"),
   historyClose: document.querySelector("#history-close"),
   historyList: document.querySelector("#history-list"),
   saveButton: document.querySelector("#save-button"),
   saveDialog: document.querySelector("#save-dialog"),
+  saveKicker: document.querySelector("#save-kicker"),
+  saveTitle: document.querySelector("#save-title"),
   saveClose: document.querySelector("#save-close"),
   saveSlots: document.querySelector("#save-slots"),
   phaseSteps: document.querySelectorAll("[data-phase-step]"),
   dialogueBox: document.querySelector(".dialogue-box"),
 };
 
-const SAVE_KEY = "resonance-conductor-day-saves-v1";
-const SAVE_SLOT_COUNT = 3;
-const HISTORY_LIMIT = 500;
+const locales = {
+  "zh-CN": window.GAME_CONTENT_ZH || window.GAME_CONTENT,
+  "en-US": window.GAME_CONTENT_EN,
+};
 
+let currentLocale = initialLocale();
+let content = locales[currentLocale] || locales["zh-CN"];
 let state;
+
+function initialLocale() {
+  const saved = localStorage.getItem(LOCALE_KEY);
+  if (saved && locales[saved]) return saved;
+  const languages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+  return languages.some((language) => language.toLowerCase().startsWith("zh")) ? "zh-CN" : "en-US";
+}
+
+function t() {
+  return UI_TEXT[currentLocale] || UI_TEXT["zh-CN"];
+}
+
+function setLocale(locale, options = {}) {
+  if (!locales[locale]) return;
+  currentLocale = locale;
+  content = locales[locale];
+  localStorage.setItem(LOCALE_KEY, locale);
+  updateStaticText();
+  if (options.restart) restart();
+  else if (state) render();
+}
+
+function toggleLocale() {
+  setLocale(currentLocale === "zh-CN" ? "en-US" : "zh-CN", { restart: true });
+}
+
+function updateStaticText() {
+  const ui = t();
+  document.documentElement.lang = currentLocale;
+  document.title = content.meta.title;
+  els.root?.setAttribute("aria-label", ui.appLabel);
+  document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+    const key = element.dataset.i18nAria;
+    if (ui[key]) element.setAttribute("aria-label", ui[key]);
+  });
+  els.brandKicker.textContent = ui.brandKicker;
+  els.brandTitle.textContent = ui.brandTitle;
+  els.disclaimer.textContent = content.meta.disclaimer;
+  els.moraleLabel.textContent = content.stats.morale.label;
+  els.conditionLabel.textContent = content.stats.condition.label;
+  els.fatigueLabel.textContent = content.stats.fatigue.label;
+  els.phaseSteps.forEach((step) => {
+    step.textContent = content.phases[Number(step.dataset.phaseStep)] || "";
+  });
+  setButtonText(els.languageButton, ui.languageButton);
+  els.languageLabel.textContent = ui.languageLabel;
+  setButtonText(els.historyButton, ui.historyButton);
+  setButtonText(els.saveButton, ui.saveButton);
+  setButtonText(els.restart, ui.restartButton);
+  setButtonText(els.historyClose, ui.close);
+  setButtonText(els.saveClose, ui.close);
+  els.historyKicker.textContent = ui.historyKicker;
+  els.historyTitle.textContent = ui.historyTitle;
+  els.saveKicker.textContent = ui.saveKicker;
+  els.saveTitle.textContent = ui.saveTitle;
+  els.endingKicker.textContent = ui.endingKicker;
+  els.endingRestart.textContent = ui.endingRestart;
+  els.endingTitle.textContent = ui.endingFallbackTitle;
+}
+
+function setButtonText(button, label) {
+  if (!button) return;
+  button.setAttribute("aria-label", label);
+  button.setAttribute("title", label);
+}
 
 function clampStat(key, value) {
   const config = content.stats[key];
@@ -78,6 +284,10 @@ function phaseIndex() {
   return state.slotIndex % content.phases.length;
 }
 
+function formatSceneTime(day, time) {
+  return t().sceneTime(day, time);
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -109,10 +319,10 @@ function pushHistoryLine(line) {
   if (!line?.text) return;
   const slot = currentSlot();
   const entry = {
-    speaker: line.speaker || "旁白",
+    speaker: line.speaker || t().narrationSpeaker,
     text: line.text,
     location: state.displayLocation || slot.location,
-    time: state.displayTime || `第 ${currentDay().day} 天 / ${slot.time}`,
+    time: state.displayTime || formatSceneTime(currentDay().day, slot.time),
   };
   const previous = state.history[state.history.length - 1];
   if (
@@ -193,7 +403,6 @@ function finishScript() {
 
   if (after.type === "ending") {
     showEnding(after.endingId);
-    return;
   }
 }
 
@@ -203,8 +412,8 @@ function startPrologue() {
     mode: "prologue",
     scene: "freeport",
     focus: "livia",
-    location: "7号自由港站台",
-    time: "委托开始前",
+    location: firstSlot.location,
+    time: t().prologueTime,
     after: { type: "slot" },
   });
 }
@@ -216,7 +425,7 @@ function startSlot() {
     scene: slot.scene,
     focus: slot.focus || "livia",
     location: slot.location,
-    time: `第 ${currentDay().day} 天 / ${slot.time}`,
+    time: formatSceneTime(currentDay().day, slot.time),
     after: { type: "choices" },
   });
 }
@@ -226,9 +435,9 @@ function render() {
   const slot = currentSlot();
   const phase = content.phases[phaseIndex()];
 
-  els.day.textContent = `第 ${day.day} 天`;
+  els.day.textContent = t().dayLabel(day.day);
   els.phase.textContent = phase;
-  els.logCount.textContent = `${state.log.length} 条记录`;
+  els.logCount.textContent = t().logCount(state.log.length);
 
   els.moraleValue.textContent = state.stats.morale;
   els.conditionValue.textContent = state.stats.condition;
@@ -239,6 +448,7 @@ function render() {
 
   els.phaseSteps.forEach((step) => {
     const index = Number(step.dataset.phaseStep);
+    step.textContent = content.phases[index] || "";
     step.classList.toggle("is-active", index === phaseIndex());
     step.classList.toggle("is-complete", index < phaseIndex());
   });
@@ -255,28 +465,27 @@ function render() {
 function renderStory() {
   const line = currentLine();
   const slot = currentSlot();
-  const speaker = line?.speaker || (state.mode === "choice" ? "行动选择" : "旁白");
-  const isNarration = speaker === "旁白";
+  const speaker = line?.speaker || (state.mode === "choice" ? t().choiceSpeaker : t().narrationSpeaker);
+  const isNarration = speaker === t().narrationSpeaker;
   const location = state.displayLocation || slot.location;
-  const time = state.displayTime || `第 ${currentDay().day} 天 / ${slot.time}`;
+  const time = state.displayTime || formatSceneTime(currentDay().day, slot.time);
 
   els.sceneLocation.textContent = isNarration ? location : speaker;
   els.sceneTime.textContent = isNarration ? time : `${location} · ${time}`;
 
   if (line) {
-    const text = escapeHtml(line.text);
-    const prompt = state.mode === "choice" ? "" : `<span class="next-cue">点击继续</span>`;
-    els.storyText.innerHTML = `<p class="${isNarration ? "is-narration" : ""}">${text}</p>${prompt}`;
+    const prompt = state.mode === "choice" ? "" : `<span class="next-cue">${escapeHtml(t().nextCue)}</span>`;
+    els.storyText.innerHTML = `<p class="${isNarration ? "is-narration" : ""}">${escapeHtml(line.text)}</p>${prompt}`;
     return;
   }
 
   if (state.mode === "choice") {
-    els.storyText.innerHTML = `<p class="is-narration">请选择这一时段的行动，也可以先点选左侧乘员确认他们的状态。</p>`;
+    els.storyText.innerHTML = `<p class="is-narration">${escapeHtml(t().choicePrompt)}</p>`;
     return;
   }
 
   if (state.mode === "continue") {
-    els.storyText.innerHTML = `<p class="is-narration">本段值乘记录已写入行车日志。</p>`;
+    els.storyText.innerHTML = `<p class="is-narration">${escapeHtml(t().continuePrompt)}</p>`;
   }
 }
 
@@ -304,7 +513,7 @@ function renderCrewHud() {
       const value = state.crew[member.stat];
       const avatarSrc = member.avatar || member.sprite;
       const avatar = avatarSrc
-        ? `<img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(member.name)}头像" draggable="false" />`
+        ? `<img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(t().avatarAlt(member.name))}" draggable="false" />`
         : escapeHtml(member.initial);
       return `
         <button class="crew-card" type="button" data-character="${escapeHtml(member.id)}" ${state.mode === "choice" ? "" : "disabled"}>
@@ -332,13 +541,12 @@ function renderCharacters() {
     return;
   }
   const canTalk = state.mode === "choice" && content.crew.some((crewMember) => crewMember.id === member.id);
-
   const sprite = member.sprite
-    ? `<img class="sprite-art" src="${escapeHtml(member.sprite)}" alt="${escapeHtml(member.name)}立绘" draggable="false" />`
+    ? `<img class="sprite-art" src="${escapeHtml(member.sprite)}" alt="${escapeHtml(t().spriteAlt(member.name))}" draggable="false" />`
     : `<span class="sprite-art sprite-fallback">${escapeHtml(member.initial)}</span>`;
 
   els.characterLayer.innerHTML = `
-    <button class="character is-focus" type="button" data-character="${escapeHtml(member.id)}" ${canTalk ? "" : "disabled"} aria-label="与${escapeHtml(member.name)}对话">
+    <button class="character is-focus" type="button" data-character="${escapeHtml(member.id)}" ${canTalk ? "" : "disabled"} aria-label="${escapeHtml(t().talkAria(member.name))}">
       ${sprite}
       <span class="name-tag">${escapeHtml(member.name)}</span>
     </button>
@@ -385,8 +593,8 @@ function renderChoices(choices = []) {
 function renderContinue() {
   els.choices.innerHTML = `
     <button class="location-button continue-button" type="button" data-continue="true">
-      <strong>继续值乘</strong>
-      <small>进入下一段剧情</small>
+      <strong>${escapeHtml(t().continueTitle)}</strong>
+      <small>${escapeHtml(t().continueHint)}</small>
     </button>
   `;
 }
@@ -418,8 +626,8 @@ function requirementText(choice) {
   const any = choice.requiresAny || [];
   const parts = [];
   if (all.length) parts.push(all.map(formatRequirement).join(" / "));
-  if (any.length) parts.push(`满足其一：${any.map(formatRequirement).join(" 或 ")}`);
-  return parts.length ? `需要：${parts.join(" / ")}` : "条件不足";
+  if (any.length) parts.push(t().requirementAny(any.map(formatRequirement)));
+  return parts.length ? t().requirementPrefix(parts) : t().requirementMissing;
 }
 
 function formatRequirement(requirement) {
@@ -470,7 +678,7 @@ function renderChoiceEffects(effects = {}) {
   const parts = effectParts(effects);
   if (!parts.length) return "";
   return `
-    <span class="choice-effects" aria-label="行动影响">
+    <span class="choice-effects" aria-label="${escapeHtml(t().effectsAria)}">
       ${parts
         .map((part) => `<span class="effect-chip is-${part.tone}">${escapeHtml(part.label)} ${part.value > 0 ? "+" : ""}${escapeHtml(part.value)}</span>`)
         .join("")}
@@ -498,12 +706,12 @@ function chooseAction(actionId) {
   if (!choice || !isChoiceAvailable(choice)) return;
 
   applyChoice(choice);
-  state.log.push(`第 ${currentDay().day} 天 ${slot.phase}：${choice.title}`);
+  state.log.push(t().actionLog(currentDay().day, slot.phase, choice.title));
 
   const resultLines = [...(choice.result || [])];
   const effectLine = describeEffects(choice.effects);
   if (effectLine) {
-    resultLines.push({ speaker: "行车日志", text: `状态变化：${effectLine}` });
+    resultLines.push({ speaker: t().logSpeaker, text: `${t().statusChange}: ${effectLine}` });
   }
 
   startScript(resultLines, {
@@ -511,28 +719,23 @@ function chooseAction(actionId) {
     scene: choice.scene || slot.scene,
     focus: choice.focus || slot.focus || state.focus,
     location: slot.location,
-    time: `第 ${currentDay().day} 天 / ${slot.time}`,
+    time: formatSceneTime(currentDay().day, slot.time),
     after: choice.ending ? { type: "ending", endingId: choice.ending } : { type: "continue" },
   });
 }
 
 function applyChoice(choice) {
   const effects = choice.effects || {};
-  const statEffects = effects.stats || {};
-  const crewEffects = effects.crew || {};
-
-  for (const [key, value] of Object.entries(statEffects)) {
+  for (const [key, value] of Object.entries(effects.stats || {})) {
     if (key in state.stats) {
       state.stats[key] = clampStat(key, state.stats[key] + value);
     }
   }
-
-  for (const [key, value] of Object.entries(crewEffects)) {
+  for (const [key, value] of Object.entries(effects.crew || {})) {
     if (key in state.crew) {
       state.crew[key] = Math.max(0, Math.min(100, state.crew[key] + value));
     }
   }
-
   (choice.flags || []).forEach((flag) => state.flags.add(flag));
 }
 
@@ -581,10 +784,17 @@ function talkToCharacter(characterId) {
 function showEnding(endingId) {
   const ending = content.endings[endingId] || content.endings.storm;
   state.ended = true;
+  const labels = {
+    morale: content.stats.morale.label,
+    condition: content.stats.condition.label,
+    fatigue: content.stats.fatigue.label,
+    clues: content.stats.clues.label,
+    credit: content.stats.credit.label,
+  };
   els.endingTitle.textContent = ending.title;
   els.endingBody.innerHTML = `
     ${ending.body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
-    <p>最终状态：士气 ${state.stats.morale} / 车况 ${state.stats.condition} / 疲劳 ${state.stats.fatigue} / 线索 ${state.stats.clues} / 商会信用 ${state.stats.credit}</p>
+    <p>${escapeHtml(t().finalStats(state.stats, labels))}</p>
     <ul>
       ${content.crew.map((member) => `<li>${escapeHtml(epilogueFor(member))}</li>`).join("")}
     </ul>
@@ -594,10 +804,11 @@ function showEnding(endingId) {
 
 function epilogueFor(member) {
   const value = state.crew[member.stat];
-  if (member.id === "box" && value < 45) return "波克士进入检修模式，仍坚持把本次功劳记在自己名下。";
-  if (value >= 55) return `${member.name}在结算后主动留下，参与下一班车的准备。`;
-  if (value >= 35) return `${member.name}完成了自己的记录，临走前和你交换了一个短短的点头。`;
-  return `${member.name}仍保持着一点距离，但把今日报告放到了你的桌面正中。`;
+  const epilogue = t().epilogue;
+  if (member.id === "box" && value < 45) return epilogue.boxLow;
+  if (value >= 55) return epilogue.high(member.name);
+  if (value >= 35) return epilogue.mid(member.name);
+  return epilogue.low(member.name);
 }
 
 function restart() {
@@ -615,9 +826,10 @@ function saveKey(slotIndex) {
 function serializeState() {
   return {
     ...state,
+    locale: currentLocale,
     flags: [...state.flags],
     savedAt: new Date().toISOString(),
-    version: 1,
+    version: 2,
   };
 }
 
@@ -654,6 +866,9 @@ function saveToSlot(slotIndex) {
 function loadFromSlot(slotIndex) {
   const saved = loadSaves()[slotIndex];
   if (!saved) return;
+  if (saved.locale && saved.locale !== currentLocale && locales[saved.locale]) {
+    setLocale(saved.locale, { restart: false });
+  }
   state = hydrateState(saved);
   if (els.endingDialog.open) els.endingDialog.close();
   if (els.saveDialog.open) els.saveDialog.close();
@@ -665,7 +880,7 @@ function formatSaveTime(value) {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("zh-CN", {
+  return date.toLocaleString(currentLocale, {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -674,12 +889,15 @@ function formatSaveTime(value) {
 }
 
 function saveSummary(saved) {
-  if (!saved) return "空存档";
-  const day = content.timeline[saved.dayIndex];
+  if (!saved) return t().emptySave;
+  const saveLocale = saved.locale || currentLocale;
+  const saveContent = locales[saveLocale] || content;
+  const day = saveContent.timeline[saved.dayIndex];
   const slot = day?.slots?.[saved.slotIndex];
-  const phase = slot?.phase || content.phases[saved.slotIndex % content.phases.length] || "";
-  const time = slot?.time || "未知时段";
-  return `第 ${day?.day || "?"} 天 ${phase} / ${time}`;
+  const phase = slot?.phase || saveContent.phases[saved.slotIndex % saveContent.phases.length] || "";
+  const time = slot?.time || t().unknownTime;
+  const ui = UI_TEXT[saveLocale] || t();
+  return `${ui.dayLabel(day?.day || "?")} ${phase} / ${time}`;
 }
 
 function renderSaveSlots() {
@@ -690,13 +908,13 @@ function renderSaveSlots() {
       return `
         <article class="save-slot ${hasSave ? "" : "is-empty"}">
           <div>
-            <strong>存档 ${index + 1}</strong>
+            <strong>${escapeHtml(t().saveSlot(index + 1))}</strong>
             <span>${escapeHtml(saveSummary(saved))}</span>
             ${hasSave ? `<em>${escapeHtml(formatSaveTime(saved.savedAt))}</em>` : ""}
           </div>
           <div class="save-actions">
-            <button type="button" data-save-slot="${index}">保存</button>
-            <button type="button" data-load-slot="${index}" ${hasSave ? "" : "disabled"}>读取</button>
+            <button type="button" data-save-slot="${index}">${escapeHtml(t().save)}</button>
+            <button type="button" data-load-slot="${index}" ${hasSave ? "" : "disabled"}>${escapeHtml(t().load)}</button>
           </div>
         </article>
       `;
@@ -711,7 +929,7 @@ function openSaveDialog() {
 
 function renderHistory() {
   if (!state.history.length) {
-    els.historyList.innerHTML = `<p class="empty-history">还没有可回看的对话。</p>`;
+    els.historyList.innerHTML = `<p class="empty-history">${escapeHtml(t().emptyHistory)}</p>`;
     return;
   }
   els.historyList.innerHTML = state.history
@@ -779,6 +997,7 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+els.languageButton.addEventListener("click", toggleLocale);
 els.restart.addEventListener("click", restart);
 els.endingRestart.addEventListener("click", restart);
 els.historyButton.addEventListener("click", openHistoryDialog);
@@ -797,6 +1016,7 @@ els.saveSlots.addEventListener("click", (event) => {
   }
 });
 
+setLocale(currentLocale, { restart: false });
 restart();
 
 if ("requestIdleCallback" in window) {

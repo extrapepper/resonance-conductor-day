@@ -1,4 +1,4 @@
-window.GAME_CONTENT = {
+window.GAME_CONTENT_ZH = {
   meta: {
     title: "雷索纳斯：列车长的一日",
     subtitle: "下一站，风暴边界",
@@ -1127,7 +1127,7 @@ window.GAME_CONTENT = {
   },
 };
 
-window.GAME_CONTENT.prologue = [
+window.GAME_CONTENT_ZH.prologue = [
   { speaker: "旁白", text: "7号自由港的清晨没有真正安静的时候。轨道桥下方的卸货臂还在运转，广播反复提醒旅客远离污染区方向的临时封锁线。" },
   { speaker: "旁白", text: "无垠号被排在第三检修栈桥。列车还没有发车，货仓里却已经多了一只被铅封的深蓝色箱体，箱体标签写着：阿妮塔能源研究所，现实稳定部件，短途急送。" },
   { speaker: "列车长", text: "短途、急送、报酬偏高，还要求由我们自己承担交付前的损耗责任。听起来不像好差事。" },
@@ -1322,7 +1322,7 @@ const characterScripts = {
 
 const dialogueLine = (speaker, text, character) => character ? { speaker, text, character } : { speaker, text };
 
-const day7 = window.GAME_CONTENT.timeline.find((day) => day.day === 7);
+const day7 = window.GAME_CONTENT_ZH.timeline.find((day) => day.day === 7);
 if (day7 && day7.slots.length === 1 && day7.slots[0].time === "最终交接") {
   const finalSlot = day7.slots[0];
   finalSlot.phase = "夜晚";
@@ -1721,7 +1721,7 @@ const expandedSlotLines = {
   ],
 };
 
-for (const [dayIndex, day] of window.GAME_CONTENT.timeline.entries()) {
+for (const [dayIndex, day] of window.GAME_CONTENT_ZH.timeline.entries()) {
   for (const [slotIndex, slot] of day.slots.entries()) {
     const lines = expandedSlotLines[`${day.day}-${slotIndex}`];
     if (lines) slot.lines = lines;
@@ -1729,48 +1729,48 @@ for (const [dayIndex, day] of window.GAME_CONTENT.timeline.entries()) {
 }
 
 
-Object.assign(window.GAME_CONTENT.stats.morale, {
+Object.assign(window.GAME_CONTENT_ZH.stats.morale, {
   goodDirection: "high",
   help: "士气越高，乘员越愿意主动补位；过低时部分强压风险的选项会失去缓冲。",
 });
-Object.assign(window.GAME_CONTENT.stats.condition, {
+Object.assign(window.GAME_CONTENT_ZH.stats.condition, {
   goodDirection: "high",
   help: "车况越高，列车越能承受污染边界和高速调度带来的损耗。",
 });
-Object.assign(window.GAME_CONTENT.stats.fatigue, {
+Object.assign(window.GAME_CONTENT_ZH.stats.fatigue, {
   goodDirection: "low",
   help: "疲劳越低越好；疲劳过高会让夜间行动更容易出事故。",
 });
-Object.assign(window.GAME_CONTENT.stats.fuel, {
+Object.assign(window.GAME_CONTENT_ZH.stats.fuel, {
   goodDirection: "high",
   help: "燃料是改线、绕行和强行穿越的基础资源。",
 });
-Object.assign(window.GAME_CONTENT.stats.supplies, {
+Object.assign(window.GAME_CONTENT_ZH.stats.supplies, {
   goodDirection: "high",
   help: "补给用于安抚乘员、封锁车厢和处理临时伤情。",
 });
-Object.assign(window.GAME_CONTENT.stats.onTime, {
+Object.assign(window.GAME_CONTENT_ZH.stats.onTime, {
   goodDirection: "high",
   help: "准点越高，商会和站点越容易配合；过度绕行会消耗它。",
 });
-Object.assign(window.GAME_CONTENT.stats.clues, {
+Object.assign(window.GAME_CONTENT_ZH.stats.clues, {
   goodDirection: "high",
   help: "线索决定你能否看清异常货箱与污染边界背后的真正风险。",
 });
-Object.assign(window.GAME_CONTENT.stats.risk, {
+Object.assign(window.GAME_CONTENT_ZH.stats.risk, {
   goodDirection: "low",
   help: "风险越低越好；风险累积过高时，终局会更容易滑向失控。",
 });
-Object.assign(window.GAME_CONTENT.stats.credit, {
+Object.assign(window.GAME_CONTENT_ZH.stats.credit, {
   goodDirection: "high",
   help: "商会信用影响补给、通行和临时支援。",
 });
-Object.assign(window.GAME_CONTENT.stats.shizuru, {
+Object.assign(window.GAME_CONTENT_ZH.stats.shizuru, {
   goodDirection: "high",
   help: "静流支援是特殊外援标记，通常来自更谨慎或更有人情味的选择。",
 });
 
-window.GAME_CONTENT.backgrounds = {
+window.GAME_CONTENT_ZH.backgrounds = {
   freeport: {
     src: "./assets/bg/freeport.webp",
     position: "center 48%",
@@ -1825,6 +1825,8 @@ window.GAME_CONTENT.backgrounds = {
   },
 };
 
-for (const member of window.GAME_CONTENT.crew) {
+for (const member of window.GAME_CONTENT_ZH.crew) {
   Object.assign(member, characterScripts[member.id] || {});
 }
+
+window.GAME_CONTENT = window.GAME_CONTENT_ZH;
